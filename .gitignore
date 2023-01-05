@@ -1,0 +1,19 @@
+/node_modules
+
+#Builds
+/build
+
+#Editor
+/.vscode
+/.idea
+
+#Local overrides
+.env.testing.local
+.env.staging.local
+.env.production.local
+
+#lock file 
+/package-lock.json
+
+#Temporary Jsons
+StaticJsons/
