@@ -6,10 +6,7 @@ import { Alert, FlexLayout, LRLayout, TextStyles } from '@cedcommerce/ounce-ui';
 import Footer from '../Footer/Footer';
 import './auth.css';
 import Login from './Login/Login';
-import Reset from './Reset/Reset';
-import Forgot from './Forgot/Forgot';
 import { cardTitleAuth } from '../../Constant';
-import ForgotSuccess from './Forgot/ForgotSuccess';
 
 function Auth(_props: DIProps): JSX.Element {
     const match = useParams();
@@ -80,13 +77,6 @@ function Auth(_props: DIProps): JSX.Element {
                             }>
                             <Routes>
                                 <Route path="login" element={<Login />} />
-                                <Route path="forgot" element={<Forgot />} />
-                                <Route path="reset" element={<Reset />} />
-                                <Route
-                                    path="forgotsuccess"
-                                    element={<ForgotSuccess />}
-                                />
-
                                 <Route
                                     path="*"
                                     element={<Navigate to={'/auth/login'} />}

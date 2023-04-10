@@ -17,3 +17,6 @@
 
 #Temporary Jsons
 StaticJsons/
+
+#npmrc file
+*.npmrc

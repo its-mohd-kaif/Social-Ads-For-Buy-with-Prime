@@ -35,7 +35,7 @@
     "webpack-dev-server": "^3.11.2"
   },
   "dependencies": {
-    "@cedcommerce/ounce-ui": "^3.5.7",
+    "@cedcommerce/ounce-ui": "^3.6.6",
     "immutable": "^4.1.0",
     "query-string": "^7.0.1",
     "react": "^17.0.1",
