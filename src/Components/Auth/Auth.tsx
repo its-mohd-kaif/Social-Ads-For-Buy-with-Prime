@@ -9,6 +9,7 @@ import Login from './Login/Login';
 import { cardTitleAuth } from '../../Constant';
 import Forgot from './Forgot/Forgot';
 import Reset from './Reset/Reset';
+import ResetPasswordAlert from './Layouts/ResetPasswordAlert';
 
 function Auth(_props: DIProps): JSX.Element {
     const match = useParams();
@@ -80,6 +81,7 @@ function Auth(_props: DIProps): JSX.Element {
                             <Routes>
                                 <Route path="login" element={<Login />} />
                                 <Route path='forgot' element={<Forgot />} />
+                                <Route path='resetpassword' element={<ResetPasswordAlert />} />
                                 <Route path='reset' element={<Reset />} />
                                 <Route
                                     path="*"

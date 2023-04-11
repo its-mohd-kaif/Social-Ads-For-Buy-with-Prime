@@ -1,0 +1,6 @@
+.password__rules{
+    margin-left: -1.2em;
+}
+.password__rules > .inte__List li{
+    padding: 0;
+}
