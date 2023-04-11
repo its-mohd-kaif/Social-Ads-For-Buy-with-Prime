@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DI, DIProps, parseJwt, extractUSername } from '../../../Core';
-import { loginStatus } from '../../../Actions';
+import { loginStatus, saveUserId } from '../../../Actions';
 import * as queryString from 'query-string';
 import { useNavigate } from 'react-router-dom';
 import { StoreDispatcher } from '../../..';
@@ -30,23 +30,37 @@ interface objectState {
     [name: string]: objIErrorValidate;
 }
 interface loginStateObj {
-    username: string;
+    email: string;
     password: string;
     loading: boolean;
     eyeoff: boolean;
 }
+interface errorMessObj {
+    emailError: boolean;
+    message: string;
+    passError: boolean;
+    loginBtn: boolean;
+}
 function Login(_props: PropsI): JSX.Element {
+    /**
+     * make a state object for input fields
+     */
     const [state, setState] = useState<loginStateObj>({
-        username: '',
+        email: '',
         password: '',
         loading: false,
         eyeoff: false,
     });
+    /**
+     * make a state object for showing alert messages
+     */
+    const [errorMess, setErrorMess] = useState<errorMessObj>({
+        emailError: false,
+        message: "",
+        passError: false,
+        loginBtn: true
+    })
     const [pageLoad, pageLoadingState] = useState<boolean>(true);
-    const [errorValidation, setErrorValidation] = useState<objectState>({
-        email: { error: false, message: '', showError: false },
-        password: { error: false, showError: false },
-    });
     const navigate = useNavigate();
     const dispatcher = useContext(StoreDispatcher);
 
@@ -57,24 +71,107 @@ function Login(_props: PropsI): JSX.Element {
         });
         _props.di.globalState.removeLocalStorage('auth_token');
         pageLoadingState(false);
-        return () => {};
+        return () => { };
     }, []);
 
     if (pageLoad) {
         return <></>;
     }
+    /**
+     * destructure all state values 
+     */
+    const { email, password, loading, eyeoff } = state;
+    const { emailError, passError, message, loginBtn } = errorMess
+    let { emailFormat
+    } = regexValidation;
 
-    const { username, password, loading, eyeoff } = state;
+    /**
+     * OnBlur() this function run and check validation of email field
+     */
+    const checkEmailValidation = () => {
+        if (emailFormat.test(email) === false || email === "") {
+            setErrorMess({
+                ...errorMess,
+                emailError: true,
+                message: "Please enter a valid email",
+                loginBtn: true
+            })
+        }
+    }
+    /**
+     * OnBlur() this function run and check validation of pasword field
+     */
+    const checkPassValidation = () => {
+        if (password === "") {
+            setErrorMess({
+                ...errorMess,
+                passError: true,
+                loginBtn: true
+            })
+        }
+    }
+    /**
+     * In this function we make post request and pass user credentials information
+     * after response we get token 
+     * we parse token and get user id
+     * and save user id into redux state
+     * also set user token in session storage
+     */
+    const loginHandler = () => {
+        const { di: { POST } } = _props
+        const { post: {
+            userLogin
+        } } = urlFetchCalls
+        POST(userLogin, {
+            email: email,
+            password: password
+        }).then((res) => {
+            const { data: {
+                token
+            } } = res
+            let response = parseJwt(token);
+            let { user_id } = response
+            _props.loginStatus();
+            dispatcher({
+                type: 'USER_ID',
+                state: user_id,
+            });
+            _props.di.globalState.set(`${user_id}_auth_token`, token)
+        })
+            .catch((mess) => console.log(mess))
+    }
     return (
         <>
             <FormElement>
                 <TextField
                     name={'Email'}
-                    error={errorValidation.email.showError}
-                    showHelp={errorValidation.email.message}
+                    error={emailError}
+                    showHelp={message}
                     required={true}
                     placeHolder={'ex: abc@gmail.com'}
-                    value={username}
+                    value={email}
+                    type="email"
+                    onChange={(e) => {
+                        /**
+                         * onchange we check email validation and store value in state
+                         */
+                        setErrorMess({
+                            ...errorMess,
+                            emailError: false,
+                            message: "",
+                            loginBtn: true
+                        })
+                        setState({ ...state, email: e })
+                        if (emailFormat.test(e) === true && password !== "") {
+                            setErrorMess({
+                                ...errorMess,
+                                emailError: false,
+                                message: "",
+                                loginBtn: false
+                            })
+                        }
+                    }}
+                    onblur={() => checkEmailValidation()}
                 />
                 <div>
                     <FlexLayout direction="vertical" spacing="mediumTight">
@@ -112,15 +209,32 @@ function Login(_props: PropsI): JSX.Element {
                                 )
                             }
                             onChange={(e) => {
-                                console.log('object');
+                                /**
+                                * onchange we check password validation and store value in state
+                                */
+                                setErrorMess({
+                                    ...errorMess,
+                                    passError: false,
+                                    loginBtn: true
+                                })
+                                setState({ ...state, password: e })
+                                if (emailFormat.test(email) === true && e !== "") {
+                                    setErrorMess({
+                                        ...errorMess,
+                                        passError: false,
+                                        loginBtn: false
+                                    })
+                                }
                             }}
+                            onblur={() => checkPassValidation()}
+                            error={passError}
                         />
 
                         <FlexLayout halign="end">
                             <Button
                                 type="TextButton"
                                 thickness="thin"
-                                onClick={() => console.log('object')}>
+                                onClick={() => _props.history("/auth/forgot")}>
                                 Forgot Password?
                             </Button>
                         </FlexLayout>
@@ -131,9 +245,9 @@ function Login(_props: PropsI): JSX.Element {
                     thickness="large"
                     length="fullBtn"
                     loading={loading}
-                    disable={false}
+                    disable={loginBtn}
                     onClick={() => {
-                        console.log('Clicked');
+                        loginHandler()
                     }}>
                     Login
                 </Button>
@@ -142,4 +256,4 @@ function Login(_props: PropsI): JSX.Element {
     );
 }
 
-export default DI(Login, { func: { loginStatus } });
+export default DI(Login, { func: { loginStatus, saveUserId } });

@@ -19,4 +19,4 @@
 StaticJsons/
 
 #npmrc file
-*.npmrc
+*.npmrc.npmrc
