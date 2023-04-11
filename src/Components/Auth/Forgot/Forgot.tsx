@@ -29,6 +29,9 @@ function Forgot(_props: DIProps) {
   const { email, generateBtn, loading, error, message } = state;
   let { emailFormat
   } = regexValidation;
+  const {
+    redirect: { loginPage },
+  } = urlFetchCalls;
   /**
    * onblur() this function will check email validation
    */
@@ -114,7 +117,12 @@ function Forgot(_props: DIProps) {
           onClick={generateLinkHandler}
           loading={loading}
         />
-        <TextLink onClick={() => _props.history("/auth/login")} extraClass='getBackLink' iconAlign='left' icon={<ArrowLeft color='black' />} label={"Back to Login"} />
+        <Button
+          icon={<ArrowLeft size={20} />}
+          type="Plain"
+          onClick={() => _props.history(loginPage)}>
+          Back To Login
+        </Button>
       </FormElement>
     </>
 
