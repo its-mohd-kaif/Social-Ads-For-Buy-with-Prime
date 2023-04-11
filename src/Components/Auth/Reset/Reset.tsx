@@ -1,12 +1,15 @@
 import { Alert, Button, FormElement, List, TextField, TextStyles } from '@cedcommerce/ounce-ui'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react';
+import { DI, DIProps, parseJwt } from "../../../Core"
 import { Eye, EyeOff } from 'react-feather';
 import { PasswordStrenght } from '../function';
+import { urlFetchCalls } from '../../../Constant'
 import "./Reset.css"
 interface stateObj {
     newPassword: string;
     confirmPassword: string;
-    eyeoff: boolean
+    eyeoff: boolean;
+    loading: boolean;
 }
 interface errorMessObj {
     newPassError: boolean;
@@ -14,46 +17,103 @@ interface errorMessObj {
     message: string;
     saveBtn: boolean;
 }
-function Reset() {
+function Reset(_props: DIProps) {
+    /**
+     * make a state object for input fields and loader
+     */
     const [state, setState] = useState<stateObj>({
         newPassword: '',
         confirmPassword: '',
         eyeoff: false,
+        loading: false
     });
+    /**
+     * make a object state for storing token data
+     */
+    const [token, setToken] = useState<any>({
+        base64: "",
+        jwtToken: {
+            email: ""
+        }
+    })
+    /**
+     * make a state for show or hide alert box
+     */
+    const [alert, setAlert] = useState<boolean>(true)
+    /**
+     * make a state object for error messages
+     */
     const [errorMess, setErrorMess] = useState<errorMessObj>({
         newPassError: false,
         conPassError: false,
         message: "",
         saveBtn: true
     })
-    const { newPassword, confirmPassword, eyeoff } = state;
+    /**
+     * when page load we fetch url path
+     * and decode our jwt token
+     * and through jwt token we get user information
+     */
+    useEffect(() => {
+        let pathUrl = window.location.search.split("token=");
+        const jwtT = pathUrl[1]
+        let myToken = atob(jwtT);
+        setToken({
+            base64: jwtT,
+            jwtToken: {
+                email: parseJwt(myToken).email
+            }
+        })
+    }, [])
+    /**
+     * destructure all values 
+     */
+    const { base64, jwtToken: {
+        email
+    } } = token
+    const { newPassword, loading, confirmPassword, eyeoff } = state;
     const { newPassError, conPassError, message, saveBtn } = errorMess;
-
-    function passwordValidation() {
-        // if (newPassword !== confirmPassword) {
-        //     setErrorMess({
-        //         ...errorMess,
-        //         message: "Passwords do not match!",
-        //         conPassError: true,
-        //         saveBtn: true
-        //     })
-        //     return true
-        // } else {
-        //     return false
-        // }
-
+    /**
+     * in this function
+     * we make a post request 
+     * after sucessfull response we navigate to password crete alert page 
+     */
+    const saveBtnHandler = () => {
+        const { di: { POST } } = _props;
+        setState({
+            ...state,
+            loading: true
+        })
+        const { post: {
+            forgotReset
+        } } = urlFetchCalls;
+        POST(forgotReset, {
+            "new_password": newPassword,
+            "confirm_password": confirmPassword,
+            "token": base64
+        }).then((res) => {
+            setState({
+                ...state,
+                loading: false
+            })
+            if (res.success === false) {
+                _props.error(res.message)
+            } else if (res.success === true) {
+                _props.history("/auth/passwordcreated")
+            }
+        }).catch((mess) => console.log(mess))
     }
-
     return (
         <FormElement>
-            <Alert
-                desciption="You are resetting password for emailid@gmail.com"
+            {alert === true ? <Alert
+                desciption={`You are resetting password for ${email}`}
                 destroy
-                onClose={function noRefCheck() { }}
+                onClose={() => setAlert(false)}
                 type="info"
             >
                 You're all set!
-            </Alert>
+            </Alert> : null}
+
             <TextField
                 name={'New Password'}
                 required={true}
@@ -62,34 +122,42 @@ function Reset() {
                 value={newPassword}
                 onChange={(e) => {
                     let strenght = PasswordStrenght(e);
-
+                    /**
+                     * store a value into state
+                     */
                     setState({
                         ...state,
                         newPassword: e
                     })
+                    /**
+                     * password validation check
+                     */
                     if (e === "") {
                         setErrorMess({
                             ...errorMess,
                             newPassError: true
                         })
                     } else if (strenght !== 100) {
-                        if (confirmPassword === e) {
+                        setErrorMess({
+                            ...errorMess,
+                            saveBtn: true
+                        })
+                    } else if (confirmPassword !== "") {
+                        if (confirmPassword !== e) {
                             setErrorMess({
                                 ...errorMess,
-                                newPassError: false,
-                                conPassError: false,
-                                saveBtn: false
+                                conPassError: true,
+                                saveBtn: true,
+                                message: "Passwords do not match!"
                             })
                         } else {
                             setErrorMess({
                                 ...errorMess,
-                                // newPassError: false,
-                                // conPassError: true,
-                                // message: "Passwords do not match!",
-                                saveBtn: true
+                                conPassError: false,
+                                saveBtn: false,
+                                message: ""
                             })
                         }
-
                     } else {
                         setErrorMess({
                             ...errorMess,
@@ -160,11 +228,16 @@ function Reset() {
                 value={confirmPassword}
                 type="password"
                 onChange={(e) => {
+                    /**
+                     * store a value into state
+                     */
                     setState({
                         ...state,
                         confirmPassword: e
                     })
-                    // passwordValidation()
+                    /**
+                     * match password validation
+                     */
                     if (newPassword !== e) {
                         setErrorMess({
                             ...errorMess,
@@ -188,10 +261,11 @@ function Reset() {
                 length="fullBtn"
                 thickness='large'
                 disable={saveBtn}
-            // onClick={() => _props.history("/auth/reset")}
+                onClick={saveBtnHandler}
+                loading={loading}
             />
         </FormElement>
     )
 }
 
-export default Reset
+export default DI(Reset)
