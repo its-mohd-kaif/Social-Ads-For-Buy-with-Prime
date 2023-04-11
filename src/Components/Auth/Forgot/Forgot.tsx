@@ -3,24 +3,35 @@ import { ArrowLeft } from "react-feather"
 import { DI, DIProps } from "../../../Core"
 import "./Forgot.css"
 import React, { useState } from 'react'
-import { regexValidation } from '../../../Constant'
+import { regexValidation, urlFetchCalls } from '../../../Constant'
 
 interface forgotStateObj {
   email: string;
   generateBtn: boolean;
   error: boolean;
   message: string;
+  loading: boolean;
 }
 function Forgot(_props: DIProps) {
+  /**
+   * make a state object for input fields and error handling
+   */
   const [state, setState] = useState<forgotStateObj>({
     email: "",
     generateBtn: true,
     error: false,
-    message: ""
+    message: "",
+    loading: false
   });
-  const { email, generateBtn, error, message } = state;
+  /**
+     * destructure all values 
+     */
+  const { email, generateBtn, loading, error, message } = state;
   let { emailFormat
   } = regexValidation;
+  /**
+   * onblur() this function will check email validation
+   */
   const checkEmailValidation = () => {
     if (emailFormat.test(email) === false || email === "") {
       setState({
@@ -31,13 +42,48 @@ function Forgot(_props: DIProps) {
       })
     }
   }
+  /**
+   * This function send post request with email payload
+   * After successful resposne we navigate user to resetpassword page
+   */
+  const generateLinkHandler = () => {
+    const { di: { POST } } = _props;
+    setState({
+      ...state,
+      loading: true
+    })
+    const { post: {
+      forgotPassword
+    } } = urlFetchCalls
+    let path = window.location.origin;
+    POST(forgotPassword, {
+      "email": email,
+      "reset-link": `${path}/auth/reset`,
+      "subject": "Reset your password for Social Ads on Buy with Prime Account"
+    }).then((res) => {
+      setState({
+        ...state,
+        loading: false
+      })
+      if (res.success === false) {
+        _props.error(res.message)
+      } else if (res.success === true) {
+        _props.history("/auth/resetpassword")
+      }
+    }).catch((mess) => console.log(mess))
+  }
   return (
     <>
       <FormElement>
         <TextField
           showHelp={message}
           onChange={(e) => {
+            /**
+             * in this we store input values into state
+             * also check validation
+             */
             setState({
+              ...state,
               email: e,
               error: false,
               message: "",
@@ -45,6 +91,7 @@ function Forgot(_props: DIProps) {
             })
             if (emailFormat.test(e) === true) {
               setState({
+                ...state,
                 email: e,
                 error: false,
                 message: "",
@@ -64,7 +111,8 @@ function Forgot(_props: DIProps) {
           length="fullBtn"
           thickness='large'
           disable={generateBtn}
-          onClick={()=>_props.history("/auth/reset")}
+          onClick={generateLinkHandler}
+          loading={loading}
         />
         <TextLink onClick={() => _props.history("/auth/login")} extraClass='getBackLink' iconAlign='left' icon={<ArrowLeft color='black' />} label={"Back to Login"} />
       </FormElement>
