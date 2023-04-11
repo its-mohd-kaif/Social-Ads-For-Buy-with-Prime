@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface UtilityActionI {
-    type: 'showToast' | 'hideToast' | 'LOGIN_STATUS' | 'logout' | 'errorFound';
+    type:
+        | 'showToast'
+        | 'hideToast'
+        | 'LOGIN_STATUS'
+        | 'logout'
+        | 'errorFound'
+        | 'USER_ID';
     state: any;
 }
 type errorType = 'fullPage' | 'modulePage' | '';
@@ -17,6 +23,7 @@ interface StateI {
         errorType?: errorType;
         message?: string | null;
     };
+    user_id: string | null;
 }
 
 interface ObjectI {
@@ -33,6 +40,7 @@ export const utility = (
             errorType: '',
             message: null,
         },
+        user_id: null,
     },
     action: UtilityActionI
 ): StateI => {
@@ -52,6 +60,7 @@ export const utility = (
                     showError: false,
                     location: null,
                 },
+                user_id: null,
             };
         case 'LOGIN_STATUS':
             return {
@@ -64,6 +73,11 @@ export const utility = (
             return {
                 ...state,
                 errorFound: action.state,
+            };
+        case 'USER_ID':
+            return {
+                ...state,
+                user_id: action.state,
             };
         default:
             return state;

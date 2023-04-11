@@ -89,3 +89,12 @@ export const errorStatus =
             state: { location, showError, errorType, message },
         });
     };
+
+export const saveUserId =
+    (user_id: string): ReduxRI =>
+    (dispatch) => {
+        dispatch({
+            type: 'USER_ID',
+            state: user_id,
+        });
+    };

@@ -1,0 +1,8 @@
+/* -------- */
+.getBackLink > .inte-TextLink--Label{
+    color: black !important;
+}
+.getBackLink > .inte-TextLink--Label:hover{
+    color: #8d75d6 !important;
+    text-decoration: none;
+}
