@@ -4,7 +4,7 @@ import { DI, DIProps, parseJwt } from "../../../Core"
 import { Eye, EyeOff } from 'react-feather';
 import { PasswordStrenght } from '../function';
 import { urlFetchCalls } from '../../../Constant'
-import "./Reset.css"
+
 interface stateObj {
     newPassword: string;
     confirmPassword: string;
@@ -216,7 +216,6 @@ function Reset(_props: DIProps) {
                         </TextStyles>
                     </List>
                 </div>
-
             </div>
 
             <TextField
