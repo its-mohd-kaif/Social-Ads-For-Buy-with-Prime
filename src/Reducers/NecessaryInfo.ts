@@ -2,13 +2,13 @@
 
 interface necessaryInfoActionI {
     type:
-    | 'syncNecessaryInfo'
-    | 'setConnector'
-    | 'setBasicInfo'
-    | 'user_id'
-    | 'logout'
-    | 'target_shop'
-    | 'source_shop';
+        | 'syncNecessaryInfo'
+        | 'setConnector'
+        | 'setBasicInfo'
+        | 'user_id'
+        | 'logout'
+        | 'target_shop'
+        | 'source_shop';
     state: any;
 }
 
@@ -24,6 +24,7 @@ export const necessaryInfo = (
             };
         case 'user_id':
             return {
+                // state: action.state,
                 ...state,
                 ...action.state,
             };
@@ -32,7 +33,7 @@ export const necessaryInfo = (
                 ...state,
                 current: {
                     ...state.current,
-                    ...action.state
+                    ...action.state,
                 },
             };
         case 'source_shop':
@@ -40,7 +41,7 @@ export const necessaryInfo = (
                 ...state,
                 current: {
                     ...state.current,
-                    ...action.state
+                    ...action.state,
                 },
             };
         case 'logout':

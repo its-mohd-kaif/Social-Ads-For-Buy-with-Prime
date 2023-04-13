@@ -1,7 +1,6 @@
 import { Button, FormElement, TextField, TextLink } from '@cedcommerce/ounce-ui'
 import { ArrowLeft } from "react-feather"
 import { DI, DIProps } from "../../../Core"
-import "./Forgot.css"
 import React, { useState } from 'react'
 import { regexValidation, urlFetchCalls } from '../../../Constant'
 

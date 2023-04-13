@@ -11,6 +11,7 @@ import Forgot from './Forgot/Forgot';
 import Reset from './Reset/Reset';
 import ResetPasswordAlert from './Layouts/ResetPasswordAlert';
 import PasswordCreatedAlert from './Layouts/PasswordCreatedAlert';
+import Register from './Register/Register';
 
 function Auth(_props: DIProps): JSX.Element {
     const match = useParams();
@@ -85,6 +86,8 @@ function Auth(_props: DIProps): JSX.Element {
                                 <Route path='resetpassword' element={<ResetPasswordAlert />} />
                                 <Route path='passwordcreated' element={<PasswordCreatedAlert />} />
                                 <Route path='reset' element={<Reset />} />
+                                <Route path='register' element={<Register />} />
+                                <Route path=':uId/register' element={<Register />} />
                                 <Route
                                     path="*"
                                     element={<Navigate to={'/auth/login'} />}

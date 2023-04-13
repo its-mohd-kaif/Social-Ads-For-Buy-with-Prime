@@ -126,17 +126,21 @@ function Login(_props: PropsI): JSX.Element {
             email: email,
             password: password
         }).then((res) => {
-            const { data: {
-                token
-            } } = res
-            let response = parseJwt(token);
-            let { user_id } = response
-            _props.loginStatus();
-            dispatcher({
-                type: 'USER_ID',
-                state: user_id,
-            });
-            _props.di.globalState.set(`${user_id}_auth_token`, token)
+            if (res.success === false) {
+                _props.error(res.message)
+            } else if (res.success === true) {
+                const { data: {
+                    token
+                } } = res
+                let response = parseJwt(token);
+                let { user_id } = response
+                _props.loginStatus();
+                dispatcher({
+                    type: 'USER_ID',
+                    state: user_id,
+                });
+                _props.di.globalState.set(`${user_id}_auth_token`, token)
+            }
         })
             .catch((mess) => console.log(mess))
     }
