@@ -1,9 +1,12 @@
 import { FormElement, TextField, TextStyles, List, CheckBox, Button, FlexLayout } from '@cedcommerce/ounce-ui'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Eye, EyeOff } from 'react-feather';
 import { DI, DIProps, parseJwt } from "../../../Core";
 import { PasswordStrenght } from '../function';
 import { regexValidation, urlFetchCalls } from '../../../Constant'
+import { StoreDispatcher } from '../../..';
+import OtpModal from './OtpModal';
+import { useNavigate } from 'react-router-dom';
 interface registerStateObj {
     name: string;
     email: string;
@@ -33,7 +36,7 @@ function Register(_props: DIProps) {
         email: '',
         createPassword: '',
         confirmPassword: '',
-        checkbox: false,
+        checkbox: true,
         loading: false,
         eyeoff: false,
     });
@@ -51,9 +54,15 @@ function Register(_props: DIProps) {
         createBtn: true
     })
     /**
+     * state for open modal component
+     */
+    const [openModal, setOpenModal] = useState<boolean>(false)
+    const dispatcher = useContext(StoreDispatcher);
+    let navigate = useNavigate()
+    /**
      * when page render we fetch token
      * and parse it 
-     * and then we replace url with user id
+     * and then we replace path with user id
      */
     useEffect(() => {
         let pathUrl = window.location.search.split("token=");
@@ -61,9 +70,14 @@ function Register(_props: DIProps) {
         if (jwtT !== undefined) {
             let myToken = parseJwt(jwtT);
             const { user_id } = myToken;
-            let origin = window.location.origin;
-            let path = window.location.pathname;
-            window.location.replace(`${origin}${path}?user_id=${user_id}`);
+            _props.di.globalState.set(`${user_id}_auth_token`, jwtT);
+            dispatcher({
+                type: "user_id",
+                state: {
+                    user_id: user_id
+                }
+            })
+            navigate(`/auth/${user_id}/register`)
         }
     }, [])
     /**
@@ -130,7 +144,8 @@ function Register(_props: DIProps) {
     }
     /**
      * this is create account button handler function
-     * 
+     * we send a POST request
+     * after getting success response we open modal 
      */
     const createBtnHandler = () => {
         const { di: { POST } } = _props;
@@ -144,8 +159,9 @@ function Register(_props: DIProps) {
         }).then((res) => {
             if (res.success === false) {
                 _props.error(res.message)
+            } else if (res.success === true) {
+                setOpenModal(true)
             }
-            console.log(res);
         }).catch((mess) => console.log(mess))
     }
     return (
@@ -417,6 +433,8 @@ function Register(_props: DIProps) {
                 onClick={createBtnHandler}
                 loading={loading}
             />
+            {/* Modal Component Call */}
+            {openModal ? <OtpModal /> : null}
         </FormElement>
     )
 }

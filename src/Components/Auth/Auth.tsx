@@ -87,6 +87,7 @@ function Auth(_props: DIProps): JSX.Element {
                                 <Route path='passwordcreated' element={<PasswordCreatedAlert />} />
                                 <Route path='reset' element={<Reset />} />
                                 <Route path='register' element={<Register />} />
+                                <Route path=':uId/register' element={<Register />} />
                                 <Route
                                     path="*"
                                     element={<Navigate to={'/auth/login'} />}
