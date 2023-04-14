@@ -33,7 +33,7 @@ function Register(_props: DIProps) {
      */
     const [state, setState] = useState<registerStateObj>({
         name: '',
-        email: 'kaif@gmail.com',
+        email: '',
         createPassword: '',
         confirmPassword: '',
         checkbox: true,
@@ -56,7 +56,7 @@ function Register(_props: DIProps) {
     /**
      * state for open modal component
      */
-    const [openModal, setOpenModal] = useState<boolean>(true)
+    const [openModal, setOpenModal] = useState<boolean>(false)
     const dispatcher = useContext(StoreDispatcher);
     let navigate = useNavigate()
     /**
@@ -148,6 +148,10 @@ function Register(_props: DIProps) {
      * after getting success response we open modal 
      */
     const createBtnHandler = () => {
+        setState({
+            ...state,
+            loading: true
+        })
         const { di: { POST } } = _props;
         const { post: {
             emailExistsCheck
@@ -157,6 +161,10 @@ function Register(_props: DIProps) {
                 "email": email
             }
         }).then((res) => {
+            setState({
+                ...state,
+                loading: false
+            })
             if (res.success === false) {
                 _props.error(res.message)
             } else if (res.success === true) {
@@ -434,7 +442,7 @@ function Register(_props: DIProps) {
                 loading={loading}
             />
             {/* Modal Component Call */}
-            {openModal ? <OtpModal email={email} /> : null}
+            {openModal ? <OtpModal email={email} openModal={OtpModal} modalMethod={() => setOpenModal(!openModal)} /> : null}
         </FormElement>
     )
 }
