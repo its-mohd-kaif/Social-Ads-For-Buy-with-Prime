@@ -79,3 +79,7 @@
 .password__rules > .inte__List li{
     padding: 0;
 }
+
+.otpModal__textfield{
+    width: 3em;
+}

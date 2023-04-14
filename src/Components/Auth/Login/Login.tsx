@@ -136,9 +136,11 @@ function Login(_props: PropsI): JSX.Element {
                 let { user_id } = response
                 _props.loginStatus();
                 dispatcher({
-                    type: 'USER_ID',
-                    state: user_id,
-                });
+                    type: "user_id",
+                    state: {
+                        user_id: user_id
+                    }
+                })
                 _props.di.globalState.set(`${user_id}_auth_token`, token)
             }
         })
