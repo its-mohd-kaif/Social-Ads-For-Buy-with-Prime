@@ -176,6 +176,7 @@ function OtpModal(_props: otpProps,) {
                         warn: "Success"
 
                     })
+                    _props.history("/auth/emailverified")
                 }
             })
 
