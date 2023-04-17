@@ -12,6 +12,7 @@ import Reset from './Reset/Reset';
 import ResetPasswordAlert from './Layouts/ResetPasswordAlert';
 import PasswordCreatedAlert from './Layouts/PasswordCreatedAlert';
 import Register from './Register/Register';
+import EmailVerifiedAlert from './Layouts/EmailVerifiedAlert';
 
 function Auth(_props: DIProps): JSX.Element {
     const match = useParams();
@@ -88,6 +89,7 @@ function Auth(_props: DIProps): JSX.Element {
                                 <Route path='reset' element={<Reset />} />
                                 <Route path='register' element={<Register />} />
                                 <Route path=':uId/register' element={<Register />} />
+                                <Route path='emailverified' element={<EmailVerifiedAlert />} />
                                 <Route
                                     path="*"
                                     element={<Navigate to={'/auth/login'} />}
