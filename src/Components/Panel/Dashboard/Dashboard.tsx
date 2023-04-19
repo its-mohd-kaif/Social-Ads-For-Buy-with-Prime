@@ -1,8 +1,11 @@
+import { TextStyles } from '@cedcommerce/ounce-ui'
 import React from 'react'
 
 function Dashboard() {
   return (
-    <div>Dashboard</div>
+    <div>
+      <TextStyles type='Heading' alignment='center'>Dashboard</TextStyles>
+    </div>
   )
 }
 

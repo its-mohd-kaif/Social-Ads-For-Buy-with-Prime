@@ -120,6 +120,10 @@ function Login(_props: PropsI): JSX.Element {
      * also set user token in session storage
      */
     const loginHandler = () => {
+        setState({
+            ...state,
+            loading: true
+        })
         const { di: { POST } } = _props
         const { post: {
             userLogin
@@ -128,6 +132,10 @@ function Login(_props: PropsI): JSX.Element {
             email: email,
             password: password
         }).then((res) => {
+            setState({
+                ...state,
+                loading: false
+            })
             if (res.success === false) {
                 _props.error(res.message)
             } else if (res.success === true) {
@@ -143,14 +151,8 @@ function Login(_props: PropsI): JSX.Element {
                         user_id: user_id
                     }
                 })
-                // _props.syncConnectorInfo(_props,)
-                // _props.syncNecessaryInfo()
-
                 _props.di.globalState.set(`${user_id}_auth_token`, token)
-                //---------> Temporary navigate for testing
                 _props.history(`/panel/${user_id}/dashboard`)
-                //<----------
-
             }
         })
             .catch((mess) => console.log(mess))
