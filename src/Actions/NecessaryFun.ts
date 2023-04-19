@@ -72,7 +72,6 @@ export const syncNecessaryInfo =
                         showMessage?.onboardingProps.error(
                             'Connection unsuccessful!'
                         );
-
                     dispatch({
                         type: 'setBasicInfo',
                         state: {

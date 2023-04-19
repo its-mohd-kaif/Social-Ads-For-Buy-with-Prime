@@ -1,6 +1,5 @@
 import { Card, FlexChild, FlexLayout, TextStyles, List, TextLink, Button, Alert, Modal } from '@cedcommerce/ounce-ui'
-
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { environment } from '../../../environments/environment'
 import FbLogo from '../../../Asests/Images/svg/FbLogo'
 import GreenCheck from '../../../Asests/Images/svg/GreenCheck'
@@ -8,17 +7,38 @@ import MobileLogo from '../../../Asests/Images/svg/MobileLogo'
 import { DI, DIProps } from "../../../Core"
 import { syncConnectorInfo } from '../../../Actions'
 import "./ConnectFB.css";
+import { useSearchParams } from 'react-router-dom'
 interface PropsI extends DIProps {
     syncConnectorInfo: () => void;
 }
 function ConnectFB(_props: PropsI) {
-    const [openModal, SetOpenModal] = useState(false)
-    const { di: { GET }, redux: { user_id } } = _props;
-    const { API_ENDPOINT } = environment
-
+    /**
+     * state for open modal
+     */
+    const [openModal, SetOpenModal] = useState<boolean>(false);
+    /**
+     * state for hide and show alert banner
+     */
+    const [alert, setAlert] = useState<boolean>(false);
+    const [alertMes, setAlertMes] = useState<string | null>("")
+    const { redux: { user_id } } = _props;
+    const { API_ENDPOINT } = environment;
+    const [searchParams] = useSearchParams()
+    useEffect(() => {
+        let success = searchParams.get("success");
+        let message = searchParams.get("message")
+        if (success === null && message === null) {
+            setAlert(false)
+        } else if (success === "false") {
+            setAlert(true)
+            setAlertMes(message)
+        }
+    }, [])
+    /**
+     * connect button handler
+     */
     const connectBtnHandler = () => {
-
-        let token = sessionStorage.getItem(`${user_id}_auth_token`); 
+        let token = sessionStorage.getItem(`${user_id}_auth_token`);
         const { redux: { current: { source: { _id } } } } = _props
         console.log("redux", _props.redux.current.source._id);
         console.log("MY TOKEN", token);
@@ -26,8 +46,6 @@ function ConnectFB(_props: PropsI) {
         state={"source_shop_id":${_id},
         "app_tag":"bwp_meta","app_code":{"onyx":"bwp","meta":"meta"},"user_id":${user_id},
         "source":"onyx"}&bearer=${token}&currency=USD&timezone=EST`, "_self")
-        
-
     }
     return (
         <section className='connectFB'>
@@ -75,15 +93,15 @@ function ConnectFB(_props: PropsI) {
                             </FlexChild>
                             <FlexChild mobileWidth='100' tabWidth='50' desktopWidth='50'>
                                 <>
-
-                                    <Alert
+                                    {alert === true ? <Alert
                                         destroy={false}
                                         onClose={function noRefCheck() { }}
                                         type="danger"
                                     >
                                         <TextStyles fontweight='extraBold'>Unable to connect your account. Please try again.</TextStyles>
                                         <TextLink onClick={() => SetOpenModal(!openModal)} label="Wondering what went wrong?" />
-                                    </Alert>
+                                    </Alert> : null}
+
                                     <Card subTitle={"To create, manage, and publish your campaigns on Facebook, link your account with Social Ads for Buy with Prime account."} title={"Link your Facebook Account"}>
                                         <Card extraClass='connect-FB-points' subTitle={"Check on the following action items before proceeding:"} title={"Your Journey ahead!"} cardType='Subdued'>
                                             <FlexLayout spacing='extraTight' direction='vertical'>
@@ -146,8 +164,13 @@ function ConnectFB(_props: PropsI) {
                     content: 'Okay',
                     loading: false,
                     onClick: () => SetOpenModal(!openModal)
-                }} open={openModal}            >
-                An error occured while connecting your Facebook account. Here are some of the reasons why this happened.
+                }} open={openModal}>
+                <FlexLayout direction='vertical' spacing='tight'>
+                    <TextStyles>An error occured while connecting your Facebook account. Here are some of the reasons why this happened.</TextStyles>
+                    <List type="disc">
+                        <TextStyles>{alertMes}</TextStyles>
+                    </List>
+                </FlexLayout>
             </Modal>
         </section>
     )

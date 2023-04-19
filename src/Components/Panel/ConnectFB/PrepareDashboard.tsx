@@ -1,17 +1,30 @@
 import { FlexLayout, Progressbar, TextStyles } from '@cedcommerce/ounce-ui'
 import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
+import { DI, DIProps } from "../../../../src/Core"
 import BigGreenCheck from "../../../Asests/Images/svg/BigGreenCheck"
 import "./PrepareDashboard.css"
-function PrepareDashboard() {
+function PrepareDashboard(_props: DIProps) {
     const [percentage, setPercentage] = useState(0);
+    const navigate = useNavigate();
+
     useEffect(() => {
         let cal = setInterval(() => {
-            setPercentage((val) => val + 25)
-        }, 500)
+            setPercentage((val) => val + 1.5625)
+        }, 31.25)
         if (percentage === 100) {
             clearInterval(cal)
         }
     }, [])
+    /**
+     * when 100 percentage in 2 sec completed we navigate to dashboard component 
+     */
+    useEffect(() => {
+        if (percentage === 100) {
+            navigate(`/panel/${_props.redux.user_id}/dashboard`)
+        }
+    }, [percentage])
+
     return (
         <div className='prepareDashboard'>
             <FlexLayout valign='center' direction='vertical'>
@@ -24,7 +37,7 @@ function PrepareDashboard() {
                 </div>
                 <Progressbar
                     percentage={percentage}
-                    progessThickness="none"
+                    progessThickness="thin"
                 />
             </div>
 
@@ -32,4 +45,4 @@ function PrepareDashboard() {
     )
 }
 
-export default PrepareDashboard
+export default DI(PrepareDashboard) 

@@ -9,6 +9,7 @@ import { BrokenPage1 } from './Components/EmptyState/EmptyPages';
 import NoInternet from './NoInternet';
 import ConnectFB from './Components/Panel/ConnectFB/ConnectFB';
 import Panel from './Components/Panel/Panel';
+import PrepareDashboard from './Components/Panel/ConnectFB/PrepareDashboard';
 
 const Auth = lazy(() => import('./Components/Auth'));
 const ShowMessage = lazy(
@@ -61,11 +62,11 @@ function App(Props: PropsI): JSX.Element {
                         }>
                         <Route path="*" element={<>NO Page Found 2</>} />
                     </Route>
-
+                    <Route path='show/message' element={<ConnectFB />} />
+                    <Route path='/prepareDashboard' element={<PrepareDashboard />} />
                     <Route path="*" element={<Navigate to={'/auth/login'} />}>
                         {' '}
                     </Route>
-
                 </Routes>
                 <RenderToasts {...Props} />
             </NoInternet>
