@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { DI, DIProps, parseJwt, extractUSername } from '../../../Core';
-import { loginStatus, saveUserId } from '../../../Actions';
+import { loginStatus, syncConnectorInfo, syncNecessaryInfo } from '../../../Actions';
 import * as queryString from 'query-string';
 import { useNavigate } from 'react-router-dom';
 import { StoreDispatcher } from '../../..';
@@ -20,6 +20,8 @@ import { RegistrationPage } from '../StaticMessages';
 
 interface PropsI extends DIProps {
     loginStatus: () => void;
+    syncConnectorInfo: () => void;
+    syncNecessaryInfo: () => void;
 }
 interface objIErrorValidate {
     error?: boolean;
@@ -141,7 +143,14 @@ function Login(_props: PropsI): JSX.Element {
                         user_id: user_id
                     }
                 })
+                // _props.syncConnectorInfo(_props,)
+                // _props.syncNecessaryInfo()
+
                 _props.di.globalState.set(`${user_id}_auth_token`, token)
+                //---------> Temporary navigate for testing
+                _props.history(`/panel/${user_id}/dashboard`)
+                //<----------
+
             }
         })
             .catch((mess) => console.log(mess))
@@ -262,4 +271,4 @@ function Login(_props: PropsI): JSX.Element {
     );
 }
 
-export default DI(Login, { func: { loginStatus, saveUserId } });
+export default DI(Login, { func: { loginStatus, syncConnectorInfo, syncNecessaryInfo } });

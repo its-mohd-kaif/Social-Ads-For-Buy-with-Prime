@@ -1,0 +1,20 @@
+.connectFB{
+    width:1006px;
+    margin: auto;
+    padding-top: 100px;
+    padding-bottom: 62px;
+}
+
+.connect-FB-points{
+background: #F4F5F9;
+}
+
+.connectBtn .inte-btn--Primary{
+    background-color: #4267B2;
+}
+
+@media screen and (max-width: 1080px) {
+    .connectFB{
+        width: auto;
+    }
+  }
