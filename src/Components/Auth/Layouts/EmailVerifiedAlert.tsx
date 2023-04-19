@@ -12,7 +12,7 @@ function EmailVerifiedAlert(_props: DIProps) {
         }, 1000)
         if (time === 0) {
             clearInterval(timer);
-            _props.history("/connect-fb");
+            _props.history(`/panel/${_props.redux.user_id}/connect-fb`);
         }
     }, [time])
     return (
@@ -26,7 +26,7 @@ function EmailVerifiedAlert(_props: DIProps) {
                 <Button
                     icon={<ArrowRight size={20} />}
                     type="Plain"
-                    onClick={() => _props.history("/connect-fb")}>
+                    onClick={() => _props.history(`/panel/${_props.redux.user_id}/connect-fb`)}>
                     Proceed to Account Connection
                 </Button>
             </FormElement>
