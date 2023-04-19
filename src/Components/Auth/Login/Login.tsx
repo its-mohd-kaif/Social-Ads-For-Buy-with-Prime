@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { DI, DIProps, parseJwt, extractUSername } from '../../../Core';
-import { loginStatus, syncConnectorInfo, syncNecessaryInfo } from '../../../Actions';
+import React, { useContext, useEffect, useState } from 'react';
+import { DI, DIProps, parseJwt } from '../../../Core';
+import { loginStatus} from '../../../Actions';
 import * as queryString from 'query-string';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { StoreDispatcher } from '../../..';
 import { Eye, EyeOff } from 'react-feather';
 import {
@@ -20,8 +20,6 @@ import { RegistrationPage } from '../StaticMessages';
 
 interface PropsI extends DIProps {
     loginStatus: () => void;
-    syncConnectorInfo: () => void;
-    syncNecessaryInfo: () => void;
 }
 interface objIErrorValidate {
     error?: boolean;
@@ -66,6 +64,8 @@ function Login(_props: PropsI): JSX.Element {
     const navigate = useNavigate();
     const dispatcher = useContext(StoreDispatcher);
 
+    const [params] = useSearchParams()
+
     useEffect(() => {
         dispatcher({
             type: 'logout',
@@ -75,7 +75,28 @@ function Login(_props: PropsI): JSX.Element {
         pageLoadingState(false);
         return () => { };
     }, []);
-
+    /**
+     * On this useEffect we check connection status in url params
+     * also we save user id in redux
+     * and save new token in session storage
+     * and last we navigate to prepare dashboard component
+     */
+    useEffect(() => {
+        let connection_status = params.get("connection_status");
+        let token: any = params.get("user_token");
+        if (connection_status === "1") {
+            let response = parseJwt(token);
+            let { user_id } = response;
+            dispatcher({
+                type: "user_id",
+                state: {
+                    user_id: user_id
+                }
+            })
+            _props.di.globalState.set(`${user_id}_auth_token`, token)
+            navigate(`/prepareDashboard`)
+        }
+    }, [])
     if (pageLoad) {
         return <></>;
     }
@@ -273,4 +294,4 @@ function Login(_props: PropsI): JSX.Element {
     );
 }
 
-export default DI(Login, { func: { loginStatus, syncConnectorInfo, syncNecessaryInfo } });
+export default DI(Login, { func: { loginStatus } });

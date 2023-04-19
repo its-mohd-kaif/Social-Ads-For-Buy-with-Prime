@@ -1,11 +1,9 @@
-.prepareDashboard{
-    /* margin-top: 100px; */
-}
 .prepareDashboard__bar{
     width: 668px;
     margin: auto;
     margin-top: 40px;
 }
+
 .prepareDashboard__bar__title{
     margin-bottom: 12px;
 }
