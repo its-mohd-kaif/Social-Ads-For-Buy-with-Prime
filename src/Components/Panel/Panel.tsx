@@ -12,12 +12,22 @@ interface PropsInfo extends DIProps {
 }
 function Panel(_props: PropsInfo) {
   const dispatcher = useContext(StoreDispatcher);
+  const [flag, setFlag] = useState(false);
   /**
    * in this useEffect we dispatch actions
    */
   useEffect(() => {
-    _props.syncConnectorInfo(_props);
-    _props.syncNecessaryInfo()
+
+    async function getAsyncCall() {
+      await _props.syncConnectorInfo(_props);
+      await _props.syncNecessaryInfo()
+      setFlag(true);
+    };
+
+    // You need to restrict it at some point
+    if (!flag) {
+      getAsyncCall();
+    }
     dispatcher({
       type: "user_id",
       state: {
@@ -25,6 +35,8 @@ function Panel(_props: PropsInfo) {
       }
     })
   }, [])
+
+
   /**
    * in this useEffect we check stepActive redux state
    * and we redirect according to value
