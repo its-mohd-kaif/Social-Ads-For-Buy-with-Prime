@@ -6,6 +6,10 @@ import Dashboard from './Dashboard/Dashboard';
 import { DI, DIProps } from "../../../src/Core"
 import { syncConnectorInfo, syncNecessaryInfo } from "../../Actions"
 import { StoreDispatcher } from '../../../src'
+import TopbarComp from './Dashboard/TopbarComp';
+import SidebarComp from './Dashboard/SidebarComp';
+import { BodyLayout } from '@cedcommerce/ounce-ui';
+// import DashboardCamp from './Dashboard/DashboardCamp';
 interface PropsInfo extends DIProps {
   syncConnectorInfo: any;
   syncNecessaryInfo: () => void;
@@ -54,9 +58,19 @@ function Panel(_props: PropsInfo) {
   return (
     <div>
       <Routes>
-        <Route path='dashboard' element={<Dashboard />} />
         <Route path='connect-fb' element={<ConnectFB />} />
       </Routes>
+      <TopbarComp />
+      <SidebarComp />
+      <BodyLayout>
+        <Routes>
+          <Route path='dashboard' element={<Dashboard />} />
+          <Route path='product' element={<>PRODUCT</>} />
+          <Route path='settings' element={<>settings</>} />
+          <Route path='help' element={<>help</>} />
+          <Route path='faq' element={<>faq</>} />
+        </Routes>
+      </BodyLayout>
       <Footer />
     </div>
   )

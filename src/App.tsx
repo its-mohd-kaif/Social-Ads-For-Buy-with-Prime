@@ -54,7 +54,7 @@ function App(Props: PropsI): JSX.Element {
                         <Route path="*" element={<>NO Page Found 2</>} />
                     </Route>
                     <Route
-                        path="/panel/:uId"
+                        path="/panel/:uId/*"
                         element={
                             <Suspense fallback={<></>}>
                                 <Panel />
