@@ -1,4 +1,4 @@
-import { Button, Card, Grid, CheckBox, FlexChild, FlexLayout, PageHeader, Pagination, Popover, TextField, ToolTip, Badge, TextStyles, OverlappingImages, AdvanceFilter, Tag } from '@cedcommerce/ounce-ui'
+import { Button, Card, Grid, CheckBox, FlexChild, FlexLayout, PageHeader, Pagination, Popover, TextField, ToolTip, Badge, TextStyles, OverlappingImages, AdvanceFilter, Tag, AutoComplete, Alert } from '@cedcommerce/ounce-ui'
 import React, { useEffect, useState } from 'react'
 import { Download, Filter, Plus, Search } from 'react-feather'
 import { Actions, CampaignPlacement, CampaignStatus } from './DashUtility'
@@ -112,7 +112,7 @@ function Dashboard(_props: DIProps) {
     check3: false,
     check4: false,
   })
-  const [filter, setFilter] = useState({
+  const [filter, setFilter] = useState<any>({
     archived: false,
     active: false,
     disconnected: false,
@@ -122,11 +122,12 @@ function Dashboard(_props: DIProps) {
     pending: false,
     scheduled: false,
   })
+  const [search, setSearch] = useState<string>("");
   const [filterPop, setFilterPop] = useState<boolean>(false)
   const [selected, setSelected] = useState<any>([])
   const [apply, setApply] = useState<any>([])
   const { di: { GET } } = _props
-  const { get: { getCampaignsUrl } } = urlFetchCalls
+  const { get: { getCampaignsUrl, bulkExportCSV } } = urlFetchCalls
   useEffect(() => {
     GET(`${getCampaignsUrl}?shop_id=801&count=10&filter[shop_id]=801&activePage=1`)
       .then((res) => console.log("API", res))
@@ -160,7 +161,6 @@ function Dashboard(_props: DIProps) {
       totalPage: apiData[0].data.total_count,
       currentCount: apiData[0].data.current_count
     })
-    console.log(apiData[0].data);
   }, [])
   const { check1, check2, check3, check4 } = checkbox;
   const { activePage, totalPage, currentCount } = page;
@@ -257,56 +257,73 @@ function Dashboard(_props: DIProps) {
     if (filter === true) {
       setSelected([...selected, string])
     } else if (filter === false) {
-      for (let i = 0; i < selected.length; i++) {
-        if (selected[i] === string) {
-          selected.splice(i, 1)
-          setSelected([...selected])
-        }
+      removeFilterFromSelected(string)
+    }
+  }
+  const removeFilterFromSelected = (val: any) => {
+    for (let i = 0; i < selected.length; i++) {
+      if (selected[i] === val) {
+        selected.splice(i, 1)
+        setSelected([...selected])
       }
     }
   }
-  // const uncheckFilter = (filter: any) => {
-  //   if (filter === "Archived") {
-  //     setFilter({
-  //       ...filter,
-  //       archived: false
-  //     })
-  //   } else if (filter === "Active") {
-  //     setFilter({
-  //       ...filter,
-  //       active: false
-  //     })
-  //   } else if (filter === "Disconnected") {
-  //     setFilter({
-  //       ...filter,
-  //       disconnected: false
-  //     })
-  //   } else if (filter === "Ended") {
-  //     setFilter({
-  //       ...filter,
-  //       ended: false
-  //     })
-  //   } else if (filter === "Paused") {
-  //     setFilter({
-  //       ...filter,
-  //       paused: false
-  //     })
-  //   } else if (filter === "Pending") {
-  //     setFilter({
-  //       ...filter,
-  //       pending: false
-  //     })
-  //   } else if (filter === "Scheduled") {
-  //     setFilter({
-  //       ...filter,
-  //       scheduled: false
-  //     })
-  //   }
-  // }
+  const uncheckFilter = (val: any) => {
+    if (val === "Archived") {
+      setFilter({
+        ...filter,
+        archived: false
+      })
+      removeFilterFromSelected(val)
+    } else if (val === "Active") {
+      setFilter({
+        ...filter,
+        active: false
+      })
+      removeFilterFromSelected(val)
+    } else if (val === "Disconnected") {
+      setFilter({
+        ...filter,
+        disconnected: false
+      })
+      removeFilterFromSelected(val)
+    } else if (val === "Ended") {
+      setFilter({
+        ...filter,
+        ended: false
+      })
+      removeFilterFromSelected(val)
+    } else if (val === "Paused") {
+      setFilter({
+        ...filter,
+        paused: false
+      })
+      removeFilterFromSelected(val)
+    } else if (val === "Pending") {
+      setFilter({
+        ...filter,
+        pending: false
+      })
+      removeFilterFromSelected(val)
+    } else if (val === "Scheduled") {
+      setFilter({
+        ...filter,
+        scheduled: false
+      })
+      removeFilterFromSelected(val)
+    }
+  }
+  const downloadReport = () => {
+    GET(`${bulkExportCSV}?shop_id=15
+    &bearer=${sessionStorage.getItem(`${_props.redux.user_id}_auth_token`)}`)
+      .then((res) => console.log("DOWNLOAD", res))
+  }
 
   return (
     <div>
-      <PageHeader action={<Button icon={<Plus />}>Create Campaign</Button>}
+      <PageHeader action={<Button onClick={()=>{
+        _props.history(`/panel/${_props.redux.user_id}/create`)
+      }} icon={<Plus />}>Create Campaign</Button>}
         title="Welcome to Social Ads for Buy with Prime!"
         description="Create and manage all your Buy with Prime
         Facebook and Instagram campaigns here." />
@@ -316,14 +333,48 @@ function Dashboard(_props: DIProps) {
           popoverContainer="body"
           position="top"
           type="light" open={false}>
-          <Button icon={<Download />} type='Outlined' thickness="thin">
+          <Button onClick={downloadReport} icon={<Download />} type='Outlined' thickness="thin">
             Download Report
           </Button>
         </ToolTip>}>
+        <hr></hr>
+        <br></br>
         <FlexLayout direction='vertical' spacing='extraTight'>
-          <FlexLayout halign='fill'>
+          <FlexLayout spacing='loose' halign='fill'>
             <FlexChild desktopWidth='50'>
-              <TextField innerPreIcon={<Search />} placeHolder="Search Campaign" />
+              <AutoComplete
+                clearButton
+                clearFunction={function noRefCheck() { }}
+                extraClass=""
+                onChange={(e: string) => {
+                  setSearch(e)
+                  GET(`meta/campaign/campaignAutoComplete?shop_id=902&keyword=${e}`)
+                    .then((res) => console.log("SEARCH RES", res))
+                }}
+                onClick={function noRefCheck() { }}
+                onEnter={function noRefCheck() { }}
+                options={[
+                  {
+                    id: 'popover0',
+                    label: 'Barbara-anne Barbara-anne Barbara-anne Barbara-anne',
+                    lname: 'hello',
+                    popoverContent: <FlexLayout direction="vertical" spacing="loose"><FlexLayout spacing="tight" wrap="noWrap"><TextStyles fontweight="bold">Size :</TextStyles><TextStyles textcolor="light">Barbara</TextStyles></FlexLayout><FlexLayout spacing="tight" wrap="noWrap"><TextStyles fontweight="bold">Intrests:</TextStyles><TextStyles textcolor="light">People who have expressed an interest in or liked pages related to Reading and Leed Festivals.</TextStyles></FlexLayout><FlexLayout spacing="tight" wrap="noWrap"><TextStyles fontweight="bold">Description</TextStyles><TextStyles textcolor="light">People who have expressed an interest in or liked pages related to Reading and Leed Festivals.</TextStyles></FlexLayout><Alert desciption="The audience size for the selected interest group is shown as a range. These numbers are subject to change over time." type="info">Alert text</Alert></FlexLayout>,
+                    value: 'Barbara-anne Barbara-anne Barbara-anne Barbara-anne'
+                  },
+                  {
+                    id: 'popover1',
+                    label: 'Jahaj Jahaaj jahaajj',
+                    popoverContent: <FlexLayout direction="vertical" spacing="loose"><FlexLayout spacing="tight" wrap="noWrap"><TextStyles fontweight="bold">Size :</TextStyles><TextStyles textcolor="light">jahaaj</TextStyles></FlexLayout><FlexLayout spacing="tight" wrap="noWrap"><TextStyles fontweight="bold">Intrests:</TextStyles><TextStyles textcolor="light">People who have expressed an interest in or liked pages related to Reading and Leed Festivals.</TextStyles></FlexLayout><FlexLayout spacing="tight" wrap="noWrap"><TextStyles fontweight="bold">Description</TextStyles><TextStyles textcolor="light">People who have expressed an interest in or liked pages related to Reading and Leed Festivals.</TextStyles></FlexLayout><Alert desciption="The audience size for the selected interest group is shown as a range. These numbers are subject to change over time." type="info">Alert text</Alert></FlexLayout>,
+                    value: 'Jahaj Jahaaj jahaajj'
+                  },
+                ]}
+                placeHolder="Search Your Items"
+                popoverContainer="body"
+                popoverPosition="right"
+                setHiglighted
+                thickness="thick"
+                value={search}
+              />
             </FlexChild>
             <FlexChild>
               <FlexLayout spacing='tight'>
@@ -429,11 +480,12 @@ function Dashboard(_props: DIProps) {
                         </FlexLayout>
                       </>,
                       name: 'Status'
+
                     }
                   ]}
                   heading="Filters"
                   icon={<Filter color="#2a2a2a" size={16} />}
-                  onClose={() => console.log("CLOSE")}
+                  onClose={() => { }}
                   disableApply={false}
                   onApply={() => setApply([...selected])}
                   type="Outlined"
@@ -507,18 +559,23 @@ function Dashboard(_props: DIProps) {
         </FlexLayout>
         {apply.length === 1 ?
           <Tag destroy={() => {
-            // uncheckFilter(apply[0])
+            uncheckFilter(apply[0])
             setApply([])
           }}>
             {apply[0]}</Tag> :
           apply.length >= 1 ? <Popover
-            activator={<Tag destroy={() => setApply([])} count={`+${apply.length - 1}`} popover togglePopup={() => setFilterPop(!filterPop)}>Status : {apply[0]}</Tag>}
+            activator={<Tag destroy={() => {
+              setFilter([])
+              setSelected([])
+              setApply([])
+            }} count={`+${apply.length - 1}`} popover togglePopup={() => setFilterPop(!filterPop)}>Status : {apply[0]}</Tag>}
             onClose={() => setFilterPop(!filterPop)}
             popoverContainer="element" open={filterPop}>
             <FlexLayout spacing="mediumTight">
               {apply.map((val: any, index: number) => (
                 <Tag destroy={() => {
-                  // uncheckFilter(val)
+
+                  uncheckFilter(val)
                   apply.splice(index, 1);
                   setApply([...apply])
                 }} key={val}>{val}</Tag>
