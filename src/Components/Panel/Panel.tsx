@@ -9,6 +9,9 @@ import { StoreDispatcher } from '../../../src'
 import TopbarComp from './Dashboard/TopbarComp';
 import SidebarComp from './Dashboard/SidebarComp';
 import { BodyLayout } from '@cedcommerce/ounce-ui';
+import LoaderComp from './Dashboard/LoaderComp';
+import CreateCamp from './Dashboard/CreateCamp';
+import Products from './Dashboard/Products/Products';
 // import DashboardCamp from './Dashboard/DashboardCamp';
 interface PropsInfo extends DIProps {
   syncConnectorInfo: any;
@@ -49,31 +52,46 @@ function Panel(_props: PropsInfo) {
     if (_props.redux.basic !== undefined) {
       if (parseInt(_props.redux.basic.stepActive) === 0) {
         _props.history(`/panel/${_props.redux.user_id}/connect-fb`)
-      } else if (parseInt(_props.redux.basic.stepActive) === 1) {
-        _props.history(`/panel/${_props.redux.user_id}/dashboard`)
       }
     }
   }, [_props.redux])
 
-  return (
-    <div>
-      <Routes>
-        <Route path='connect-fb' element={<ConnectFB />} />
-      </Routes>
-      <TopbarComp />
-      <SidebarComp />
-      <BodyLayout>
-        <Routes>
-          <Route path='dashboard' element={<Dashboard />} />
-          <Route path='product' element={<>PRODUCT</>} />
-          <Route path='settings' element={<>settings</>} />
-          <Route path='help' element={<>help</>} />
-          <Route path='faq' element={<>faq</>} />
-        </Routes>
-      </BodyLayout>
-      <Footer />
-    </div>
-  )
+  if (_props.redux.basic !== undefined) {
+    if (parseInt(_props.redux.basic.stepActive) === 0) {
+      return (
+        <>
+          <Routes>
+            <Route path='connect-fb' element={<ConnectFB />} />
+          </Routes>
+          <Footer />
+        </>
+
+      )
+    } else if (parseInt(_props.redux.basic.stepActive) === 1) {
+      return (
+        <>
+          <TopbarComp />
+          <SidebarComp />
+          <BodyLayout>
+            <Routes>
+              <Route path='dashboard' element={<Dashboard />} />
+              <Route path='product' element={<Products />} />
+              <Route path='settings' element={<>settings</>} />
+              <Route path='help' element={<>help</>} />
+              <Route path='faq' element={<>faq</>} />
+              <Route path='create' element={<CreateCamp />} />
+            </Routes>
+          </BodyLayout>
+          <Footer />
+        </>
+      )
+    }
+  } else return (<LoaderComp />)
+
+
+
+
+
 }
 
 export default DI(Panel, { func: { syncConnectorInfo, syncNecessaryInfo } })
