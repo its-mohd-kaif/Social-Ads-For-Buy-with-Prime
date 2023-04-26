@@ -10,7 +10,11 @@ export const Actions = (_props: any) => {
     return (
         <>
             <Popover
-                activator={<Button onClick={() => setOpenActions(!openActions)} type='TextButton'><img src={actions} /></Button>}
+                activator={<Button disable={_props.status === "archived" ? true :
+                    _props.status === "disconnected" ? true :
+                        _props.status === "ended" ? true :
+                            _props.status === "pending" ? true :
+                                false} onClick={() => setOpenActions(!openActions)} type='TextButton'><img src={actions} /></Button>}
                 open={openActions}
                 onClose={() => setOpenActions(!openActions)}>
                 <FlexLayout direction="vertical">

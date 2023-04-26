@@ -11,6 +11,7 @@ import SidebarComp from './Dashboard/SidebarComp';
 import { BodyLayout } from '@cedcommerce/ounce-ui';
 import LoaderComp from './Dashboard/LoaderComp';
 import CreateCamp from './Dashboard/CreateCamp';
+import Products from './Dashboard/Products/Products';
 // import DashboardCamp from './Dashboard/DashboardCamp';
 interface PropsInfo extends DIProps {
   syncConnectorInfo: any;
@@ -74,7 +75,7 @@ function Panel(_props: PropsInfo) {
           <BodyLayout>
             <Routes>
               <Route path='dashboard' element={<Dashboard />} />
-              <Route path='product' element={<>PRODUCT</>} />
+              <Route path='product' element={<Products />} />
               <Route path='settings' element={<>settings</>} />
               <Route path='help' element={<>help</>} />
               <Route path='faq' element={<>faq</>} />

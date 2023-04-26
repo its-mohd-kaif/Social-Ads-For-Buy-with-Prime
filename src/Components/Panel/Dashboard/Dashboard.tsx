@@ -1,10 +1,13 @@
 import { Button, Card, Grid, CheckBox, FlexChild, FlexLayout, PageHeader, Pagination, Popover, TextField, ToolTip, Badge, TextStyles, OverlappingImages, AdvanceFilter, Tag, AutoComplete, Alert } from '@cedcommerce/ounce-ui'
 import React, { useEffect, useState } from 'react'
-import { Download, Filter, Plus, Search } from 'react-feather'
+import { Download, Filter, Plus } from 'react-feather'
 import { Actions, CampaignPlacement, CampaignStatus } from './DashUtility'
 import { DI, DIProps } from "../../../Core"
 import { urlFetchCalls } from '../../../../src/Constant'
-
+import { environment } from '../../../../src/environments/environment'
+/**
+ * dummy api data
+ */
 const apiData = [
   {
     "success": true,
@@ -13,6 +16,82 @@ const apiData = [
       "totalPageRead": "1",
       "current_count": 2,
       "rows": [
+        {
+          "campaign_name": "retargeting campaign",
+          "campaign_id": "23854594149590431",
+          "daily_budget": 86,
+          "status": "Pending",
+          "campaign_placement": [
+            "facebook"
+          ],
+          "user_id": "643fa76ff0ed0bf6ab0c2c82",
+          "shop_id": 902,
+          "start_date": "04/28/2023",
+          "end_date": "05/01/2023",
+          "spend": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "orders": 0,
+          "sales": 0,
+          "roas": 0
+        },
+        {
+          "campaign_name": "retargeting campaign",
+          "campaign_id": "23854594149590431",
+          "daily_budget": 86,
+          "status": "Active",
+          "campaign_placement": [
+            "facebook"
+          ],
+          "user_id": "643fa76ff0ed0bf6ab0c2c82",
+          "shop_id": 902,
+          "start_date": "04/28/2023",
+          "end_date": "05/01/2023",
+          "spend": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "orders": 0,
+          "sales": 0,
+          "roas": 0
+        },
+        {
+          "campaign_name": "retargeting campaign",
+          "campaign_id": "23854594149590431",
+          "daily_budget": 86,
+          "status": "Ended",
+          "campaign_placement": [
+            "facebook"
+          ],
+          "user_id": "643fa76ff0ed0bf6ab0c2c82",
+          "shop_id": 902,
+          "start_date": "04/28/2023",
+          "end_date": "05/01/2023",
+          "spend": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "orders": 0,
+          "sales": 0,
+          "roas": 0
+        },
+        {
+          "campaign_name": "retargeting campaign",
+          "campaign_id": "23854594149590431",
+          "daily_budget": 86,
+          "status": "Disconnected",
+          "campaign_placement": [
+            "facebook"
+          ],
+          "user_id": "643fa76ff0ed0bf6ab0c2c82",
+          "shop_id": 902,
+          "start_date": "04/28/2023",
+          "end_date": "05/01/2023",
+          "spend": 0,
+          "impressions": 0,
+          "clicks": 0,
+          "orders": 0,
+          "sales": 0,
+          "roas": 0
+        },
         {
           "campaign_name": "retargeting campaign",
           "campaign_id": "23854594149590431",
@@ -90,6 +169,25 @@ const apiData = [
           "sales": 0,
           "roas": 0
         },
+        {
+          "campaign_name": "arfah2 campaign",
+          "campaign_id": "23854582774900431",
+          "daily_budget": 87,
+          "status": "Archived",
+          "campaign_placement": [
+            "facebook"
+          ],
+          "user_id": "643fa76ff0ed0bf6ab0c2c82",
+          "shop_id": 902,
+          "start_date": "04/19/2023",
+          "end_date": "04/20/2023",
+          "spend": 63.63,
+          "impressions": 53,
+          "clicks": 1,
+          "orders": 0,
+          "sales": 0,
+          "roas": 0
+        },
       ],
       "next": null
     },
@@ -98,40 +196,109 @@ const apiData = [
   }
 ]
 function Dashboard(_props: DIProps) {
+  /**
+   * flag state for open manage column popover
+   */
   const [flag, setFlag] = useState<boolean>(false);
+  /**
+   *  state for store api data
+   */
   const [data, setData] = useState<any>([]);
+  /**
+   * state for grid columns details
+   */
   const [columns, setColumns] = useState<any>([]);
+  /**
+   * state for handling pagination
+   */
   const [page, setPage] = useState<any>({
     activePage: null,
     totalPage: null,
     currentCount: null
   })
+  /**
+   * state for manage columns checkboxes
+   */
   const [checkbox, setCheckbox] = useState({
     check1: false,
     check2: false,
     check3: false,
     check4: false,
   })
-  const [filter, setFilter] = useState<any>({
-    archived: false,
-    active: false,
-    disconnected: false,
-    ended: false,
-    error: false,
-    paused: false,
-    pending: false,
-    scheduled: false,
-  })
+  /**
+   * state for filter
+   */
+  const [myfilter, setMyFilter] = useState<any>([
+    {
+      label: "Archived",
+      check: false,
+      id: Math.floor(Math.random() * 9191)
+    },
+    {
+      label: "Active",
+      check: false,
+      id: Math.floor(Math.random() * 9191)
+    },
+    {
+      label: "Disconnected",
+      check: false,
+      id: Math.floor(Math.random() * 9191)
+    },
+    {
+      label: "Ended",
+      check: false,
+      id: Math.floor(Math.random() * 9191)
+    },
+    {
+      label: "Error",
+      check: false,
+      id: Math.floor(Math.random() * 9191)
+    },
+    {
+      label: "Paused",
+      check: false,
+      id: Math.floor(Math.random() * 9191)
+    },
+    {
+      label: "Pending",
+      check: false,
+      id: Math.floor(Math.random() * 9191)
+    },
+    {
+      label: "Scheduled",
+      check: false,
+      id: Math.floor(Math.random() * 9191)
+    }
+  ]
+  )
+  /**
+   * state for storing search input fields data
+   */
   const [search, setSearch] = useState<string>("");
+  /**
+   * state for open and close filter
+   */
   const [filterPop, setFilterPop] = useState<boolean>(false)
+  /**
+   * array state for store that selected value from fiter
+   */
   const [selected, setSelected] = useState<any>([])
+  /**
+   * array state for apply filter value
+   */
   const [apply, setApply] = useState<any>([])
-  const { di: { GET } } = _props
+  const { di: { GET, globalState: { get } }, redux: { current } } = _props
   const { get: { getCampaignsUrl, bulkExportCSV } } = urlFetchCalls
+  /**
+   * after mounting get campaign api call
+   */
   useEffect(() => {
     GET(`${getCampaignsUrl}?shop_id=801&count=10&filter[shop_id]=801&activePage=1`)
-      .then((res) => console.log("API", res))
+      .then(() => { })
   }, [])
+  /**
+   * useEffect for make data that shows on grid
+   */
   useEffect(() => {
     let temp = apiData[0].data.rows;
     let arr = []
@@ -150,7 +317,7 @@ function Dashboard(_props: DIProps) {
         clicks: `$${element.clicks}`,
         orders: `$${element.orders}`,
         roas: `$${element.roas}`,
-        actions: <Actions open={element.campaign_id} />
+        actions: <Actions open={element.campaign_id} status={element.status.toLowerCase()} />
       }
       arr.push(obj)
     }
@@ -164,7 +331,6 @@ function Dashboard(_props: DIProps) {
   }, [])
   const { check1, check2, check3, check4 } = checkbox;
   const { activePage, totalPage, currentCount } = page;
-  const { active, archived, disconnected, ended, error, paused, pending, scheduled } = filter
   const gridColumns = [
     {
       align: 'center',
@@ -233,6 +399,9 @@ function Dashboard(_props: DIProps) {
       fixed: "right"
     }
   ]
+  /**
+   * method that add new columns or removes columns from grid 
+   */
   const manageColumns = (check: any, string: any) => {
     if (check === true) {
       let obj = {
@@ -253,13 +422,24 @@ function Dashboard(_props: DIProps) {
       }
     }
   }
-  const filterHandler = (filter: any, string: any) => {
-    if (filter === true) {
-      setSelected([...selected, string])
-    } else if (filter === false) {
-      removeFilterFromSelected(string)
+  /**
+   * method that check which filter is checked or not
+   */
+  const myFilterHandler = (val: any, id: number) => {
+    for (const element of myfilter) {
+      if (element.id === id && element.check === false) {
+        element.check = true;
+        setSelected([...selected, val.label])
+      } else if (element.id === id && element.check === true) {
+        element.check = false;
+        removeFilterFromSelected(val.label)
+      }
     }
+    setMyFilter([...myfilter])
   }
+  /**
+   * method that remove those filter from array which is not checked
+   */
   const removeFilterFromSelected = (val: any) => {
     for (let i = 0; i < selected.length; i++) {
       if (selected[i] === val) {
@@ -268,60 +448,62 @@ function Dashboard(_props: DIProps) {
       }
     }
   }
+  /**
+   * method that mark uncheck from filter array
+   */
   const uncheckFilter = (val: any) => {
-    if (val === "Archived") {
-      setFilter({
-        ...filter,
-        archived: false
-      })
-      removeFilterFromSelected(val)
-    } else if (val === "Active") {
-      setFilter({
-        ...filter,
-        active: false
-      })
-      removeFilterFromSelected(val)
-    } else if (val === "Disconnected") {
-      setFilter({
-        ...filter,
-        disconnected: false
-      })
-      removeFilterFromSelected(val)
-    } else if (val === "Ended") {
-      setFilter({
-        ...filter,
-        ended: false
-      })
-      removeFilterFromSelected(val)
-    } else if (val === "Paused") {
-      setFilter({
-        ...filter,
-        paused: false
-      })
-      removeFilterFromSelected(val)
-    } else if (val === "Pending") {
-      setFilter({
-        ...filter,
-        pending: false
-      })
-      removeFilterFromSelected(val)
-    } else if (val === "Scheduled") {
-      setFilter({
-        ...filter,
-        scheduled: false
-      })
-      removeFilterFromSelected(val)
+    for (const element of myfilter) {
+      if (element.label === val) {
+        element.check = false
+        removeFilterFromSelected(val)
+      }
+    }
+    setMyFilter([...myfilter])
+  }
+  /**
+   * download report handler
+   */
+  const downloadReport = () => {
+    let downloadURL = environment.API_ENDPOINT + bulkExportCSV +
+      `?shop_id=${_props.redux.current?.target._id}&bearer=${get(
+        'auth_token'
+      )}`;
+    window.open(downloadURL)
+  }
+  /**
+   * apply filter handler
+   */
+  const applyFilterHandler = () => {
+    setApply([...selected]);
+    let str: string = ""
+    let arr: string[] = []
+    selected.forEach((ele: any, i: number) => {
+      str = `filter[status][${i}]=${ele.toLowerCase()}`;
+      arr.push(str)
+    });
+    GET(getCampaignsUrl, {
+      shop_id: current?.target._id,
+      filter: arr,
+      order: 1,
+      count: 5,
+      activePage: 2,
+    }).then(() => { });
+  }
+  /**
+   * on close filter we remove those who not selected after apply buttton
+   */
+  const closeFilterHandler = () => {
+    for (let i = 0; i < selected.length; i++) {
+      if (selected.length !== apply.length) {
+        while (selected[i] !== apply[i]) {
+          uncheckFilter(selected[i])
+        }
+      }
     }
   }
-  const downloadReport = () => {
-    GET(`${bulkExportCSV}?shop_id=15
-    &bearer=${sessionStorage.getItem(`${_props.redux.user_id}_auth_token`)}`)
-      .then((res) => console.log("DOWNLOAD", res))
-  }
-
   return (
     <div>
-      <PageHeader action={<Button onClick={()=>{
+      <PageHeader action={<Button onClick={() => {
         _props.history(`/panel/${_props.redux.user_id}/create`)
       }} icon={<Plus />}>Create Campaign</Button>}
         title="Welcome to Social Ads for Buy with Prime!"
@@ -349,25 +531,11 @@ function Dashboard(_props: DIProps) {
                 onChange={(e: string) => {
                   setSearch(e)
                   GET(`meta/campaign/campaignAutoComplete?shop_id=902&keyword=${e}`)
-                    .then((res) => console.log("SEARCH RES", res))
+                    .then(() => { })
                 }}
                 onClick={function noRefCheck() { }}
                 onEnter={function noRefCheck() { }}
-                options={[
-                  {
-                    id: 'popover0',
-                    label: 'Barbara-anne Barbara-anne Barbara-anne Barbara-anne',
-                    lname: 'hello',
-                    popoverContent: <FlexLayout direction="vertical" spacing="loose"><FlexLayout spacing="tight" wrap="noWrap"><TextStyles fontweight="bold">Size :</TextStyles><TextStyles textcolor="light">Barbara</TextStyles></FlexLayout><FlexLayout spacing="tight" wrap="noWrap"><TextStyles fontweight="bold">Intrests:</TextStyles><TextStyles textcolor="light">People who have expressed an interest in or liked pages related to Reading and Leed Festivals.</TextStyles></FlexLayout><FlexLayout spacing="tight" wrap="noWrap"><TextStyles fontweight="bold">Description</TextStyles><TextStyles textcolor="light">People who have expressed an interest in or liked pages related to Reading and Leed Festivals.</TextStyles></FlexLayout><Alert desciption="The audience size for the selected interest group is shown as a range. These numbers are subject to change over time." type="info">Alert text</Alert></FlexLayout>,
-                    value: 'Barbara-anne Barbara-anne Barbara-anne Barbara-anne'
-                  },
-                  {
-                    id: 'popover1',
-                    label: 'Jahaj Jahaaj jahaajj',
-                    popoverContent: <FlexLayout direction="vertical" spacing="loose"><FlexLayout spacing="tight" wrap="noWrap"><TextStyles fontweight="bold">Size :</TextStyles><TextStyles textcolor="light">jahaaj</TextStyles></FlexLayout><FlexLayout spacing="tight" wrap="noWrap"><TextStyles fontweight="bold">Intrests:</TextStyles><TextStyles textcolor="light">People who have expressed an interest in or liked pages related to Reading and Leed Festivals.</TextStyles></FlexLayout><FlexLayout spacing="tight" wrap="noWrap"><TextStyles fontweight="bold">Description</TextStyles><TextStyles textcolor="light">People who have expressed an interest in or liked pages related to Reading and Leed Festivals.</TextStyles></FlexLayout><Alert desciption="The audience size for the selected interest group is shown as a range. These numbers are subject to change over time." type="info">Alert text</Alert></FlexLayout>,
-                    value: 'Jahaj Jahaaj jahaajj'
-                  },
-                ]}
+                options={[]}
                 placeHolder="Search Your Items"
                 popoverContainer="body"
                 popoverPosition="right"
@@ -384,110 +552,27 @@ function Dashboard(_props: DIProps) {
                     {
                       children: <>
                         <FlexLayout direction='vertical' spacing='tight'>
-                          <CheckBox
-                            labelVal="Archived"
-                            name="Archived"
-                            checked={archived}
-                            onClick={() => {
-                              setFilter({
-                                ...filter,
-                                archived: !archived
-                              })
-                              filterHandler(!archived, "Archived")
-                            }}
-                          />
-                          <CheckBox
-                            labelVal="Active"
-                            name="Active"
-                            checked={active}
-                            onClick={() => {
-                              setFilter({
-                                ...filter,
-                                active: !active
-                              })
-                              filterHandler(!active, "Active")
-                            }}
-                          /><CheckBox
-                            labelVal="Disconnected"
-                            name="Disconnected"
-                            checked={disconnected}
-                            onClick={() => {
-                              setFilter({
-                                ...filter,
-                                disconnected: !disconnected
-                              })
-                              filterHandler(!disconnected, "Disconnected")
-                            }}
-                          />
-                          <CheckBox
-                            labelVal="Ended"
-                            name="Ended"
-                            checked={ended}
-                            onClick={() => {
-                              setFilter({
-                                ...filter,
-                                ended: !ended
-                              })
-                              filterHandler(!ended, "Ended")
-                            }}
-                          /><CheckBox
-                            labelVal="Error"
-                            name="Error"
-                            checked={error}
-                            onClick={() => {
-                              setFilter({
-                                ...filter,
-                                error: !error
-                              })
-                              filterHandler(!error, "Error")
-                            }}
-                          />
-                          <CheckBox
-                            labelVal="Paused"
-                            name="Paused"
-                            checked={paused}
-                            onClick={() => {
-                              setFilter({
-                                ...filter,
-                                paused: !paused
-                              })
-                              filterHandler(!paused, "Paused")
-                            }}
-                          /><CheckBox
-                            labelVal="Pending"
-                            name="Pending"
-                            checked={pending}
-                            onClick={() => {
-                              setFilter({
-                                ...filter,
-                                pending: !pending
-                              })
-                              filterHandler(!pending, "Pending")
-                            }}
-                          />
-                          <CheckBox
-                            labelVal="Scheduled"
-                            name="Scheduled"
-                            checked={scheduled}
-                            onClick={() => {
-                              setFilter({
-                                ...filter,
-                                scheduled: !scheduled
-                              })
-                              filterHandler(!scheduled, "Scheduled")
-                            }}
-                          />
+                          {myfilter.map((val: any) => (
+                            <CheckBox
+                              key={val.id}
+                              labelVal={val.label}
+                              name={val.label}
+                              checked={val.check}
+                              onClick={() => {
+                                myFilterHandler(val, val.id)
+                              }}
+                            />
+                          ))}
                         </FlexLayout>
                       </>,
                       name: 'Status'
-
                     }
                   ]}
                   heading="Filters"
                   icon={<Filter color="#2a2a2a" size={16} />}
-                  onClose={() => { }}
+                  onClose={closeFilterHandler}
                   disableApply={false}
-                  onApply={() => setApply([...selected])}
+                  onApply={applyFilterHandler}
                   type="Outlined"
                 />
                 <Popover
@@ -565,7 +650,10 @@ function Dashboard(_props: DIProps) {
             {apply[0]}</Tag> :
           apply.length >= 1 ? <Popover
             activator={<Tag destroy={() => {
-              setFilter([])
+              myfilter.map((val: any) => (
+                val.check = false
+              ))
+              setMyFilter([...myfilter])
               setSelected([])
               setApply([])
             }} count={`+${apply.length - 1}`} popover togglePopup={() => setFilterPop(!filterPop)}>Status : {apply[0]}</Tag>}
@@ -574,7 +662,6 @@ function Dashboard(_props: DIProps) {
             <FlexLayout spacing="mediumTight">
               {apply.map((val: any, index: number) => (
                 <Tag destroy={() => {
-
                   uncheckFilter(val)
                   apply.splice(index, 1);
                   setApply([...apply])
@@ -606,28 +693,7 @@ function Dashboard(_props: DIProps) {
             ...page,
             activePage: activePage - 1
           })}
-          optionPerPage={[
-            {
-              label: '10',
-              value: '10'
-            },
-            {
-              label: '15',
-              value: '15'
-            },
-            {
-              label: '20',
-              value: '20'
-            },
-            {
-              label: '25',
-              value: '25'
-            },
-            {
-              label: '50',
-              value: '50'
-            }
-          ]}
+          optionPerPage={[]}
           totalitem={totalPage}
         />
       </Card>
