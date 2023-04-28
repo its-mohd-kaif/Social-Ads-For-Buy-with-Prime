@@ -1,4 +1,4 @@
-import { AdvanceFilter, AutoComplete, Button, Card, CheckBox, FlexChild, FlexLayout, Tag, Grid, Image, PageHeader, Popover, Pagination, Loader } from '@cedcommerce/ounce-ui'
+import { AdvanceFilter, AutoComplete, Button, Card, CheckBox, FlexChild, FlexLayout, Grid, Image, PageHeader, Pagination, Loader } from '@cedcommerce/ounce-ui'
 import React, { useEffect, useState } from 'react'
 import { Filter, RefreshCw } from 'react-feather'
 import { urlFetchCalls } from '../../../../../src/Constant'
