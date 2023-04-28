@@ -249,34 +249,6 @@ function Products(_props: DIProps) {
                                 </>
                             </FlexChild>
                         </FlexLayout>
-                        {/* {apply.length === 1 ?
-                            <Tag destroy={() => {
-                                uncheckFilter(apply[0])
-                                setApply([])
-                            }}>
-                                {apply[0]}</Tag> :
-                            apply.length >= 1 ? <Popover
-                                activator={<Tag destroy={() => {
-                                    myfilter.map((val: any) => (
-                                        val.check = false
-                                    ))
-                                    setMyFilter([...myfilter])
-                                    setSelected([])
-                                    setApply([])
-                                }} count={`+${apply.length - 1}`} popover togglePopup={() => setFilterPop(!filterPop)}>Status : {apply[0]}</Tag>}
-                                onClose={() => setFilterPop(!filterPop)}
-                                popoverContainer="element" open={filterPop}>
-                                <FlexLayout spacing="mediumTight">
-                                    {apply.map((val: any, index: number) => (
-                                        <Tag destroy={() => {
-                                            uncheckFilter(val)
-                                            apply.splice(index, 1);
-                                            setApply([...apply])
-                                        }} key={val}>{val}</Tag>
-                                    ))}
-                                </FlexLayout>
-                            </Popover> : null
-                        } */}
                         {apply.length !== 0 ?
                             <FilterTagComp
                                 myfilter={myfilter}
