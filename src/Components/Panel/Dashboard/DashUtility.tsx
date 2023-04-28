@@ -1,6 +1,6 @@
-import { Badge, Button, FlexLayout, OverlappingImages, Popover, TextStyles } from "@cedcommerce/ounce-ui"
+import { Badge, Button, FlexLayout, OverlappingImages, Popover, TextStyles, Tag } from "@cedcommerce/ounce-ui"
 import React, { useState } from "react"
-import { AlertTriangle } from "react-feather"
+import { AlertTriangle, } from "react-feather"
 import GrayDot from "../../../../src/Asests/Images/svg/GrayDot"
 import GreenDot from "../../../../src/Asests/Images/svg/GreenDot"
 import actions from "../../../Asests/Images/png/actions.png"
@@ -125,7 +125,7 @@ export const ProductsStatus = (_props: any) => {
                 <TextStyles textcolor="negative">Errors</TextStyles>
             </FlexLayout>
         } else {
-            return <FlexLayout halign="start"  spacing="extraTight">
+            return <FlexLayout halign="start" spacing="extraTight">
                 <GrayDot />
                 <TextStyles textcolor="light">Pending</TextStyles>
             </FlexLayout>
@@ -168,7 +168,278 @@ export const ProductsStatus = (_props: any) => {
     }
 }
 
+/**
+* method that check which filter is checked or not
+*/
+export const myFilterHandler = (val: any, id: number, myfilter: any, setMyFilter: any, setSelected: any, selected: any, removeFilterFromSelected: any) => {
+    for (const element of myfilter) {
+        if (element.id === id && element.check === false) {
+            element.check = true;
+            setSelected([...selected, val.label])
+        } else if (element.id === id && element.check === true) {
+            element.check = false;
+            removeFilterFromSelected(val.label, selected, setSelected)
+        }
+    }
+    setMyFilter([...myfilter])
+}
 
+export const removeFilterFromSelected = (val: any, selected: any, setSelected: any) => {
+    for (let i = 0; i < selected.length; i++) {
+        if (selected[i] === val) {
+            selected.splice(i, 1)
+            setSelected([...selected])
+        }
+    }
+}
+
+export const uncheckFilter = (val: any, myfilter: any, selected: any, setSelected: any, setMyFilter: any) => {
+    for (const element of myfilter) {
+        if (element.label === val) {
+            element.check = false
+            removeFilterFromSelected(val, selected, setSelected)
+        }
+    }
+    setMyFilter([...myfilter])
+}
+
+export const closeFilterHandler = (selected: any, apply: any, myfilter: any, setSelected: any, setMyFilter: any) => {
+    for (let i = 0; i < selected.length; i++) {
+        if (selected.length !== apply.length) {
+            while (selected[i] !== apply[i]) {
+                uncheckFilter(selected[i], myfilter, selected, setSelected, setMyFilter)
+            }
+        }
+    }
+}
+
+export const FilterTagComp = (_props: any) => {
+    console.log("TAG", _props);
+    const { myfilter,
+        setSelected,
+        setMyFilter,
+        setApply,
+        setFilterPop,
+        apply, selected, filterPop } = _props
+    return <>
+        {apply.length === 1 ?
+            <Tag destroy={() => {
+                uncheckFilter(apply[0], myfilter, selected, setSelected, setMyFilter)
+                setApply([])
+            }}>
+                {apply[0]}</Tag> :
+            apply.length >= 1 ? <Popover
+                activator={<Tag destroy={() => {
+                    myfilter.map((val: any) => (
+                        val.check = false
+                    ))
+                    setMyFilter([...myfilter])
+                    setSelected([])
+                    setApply([])
+                }} count={`+${apply.length - 1}`} popover togglePopup={() => setFilterPop(!filterPop)}>Status : {apply[0]}</Tag>}
+                onClose={() => setFilterPop(!filterPop)}
+                popoverContainer="element" open={filterPop}>
+                <FlexLayout spacing="mediumTight">
+                    {apply.map((val: any, index: number) => (
+                        <Tag destroy={() => {
+                            uncheckFilter(val, myfilter, selected, setSelected, setMyFilter)
+                            apply.splice(index, 1);
+                            setApply([...apply])
+                        }} key={val}>{val}</Tag>
+                    ))}
+                </FlexLayout>
+            </Popover> : null
+        }
+    </>
+}
+
+export const DashboardApiData = [
+    {
+        "success": true,
+        "data": {
+            "total_count": 4,
+            "totalPageRead": "1",
+            "current_count": 2,
+            "rows": [
+                {
+                    "campaign_name": "retargeting campaign",
+                    "campaign_id": "23854594149590431",
+                    "daily_budget": 86,
+                    "status": "Pending",
+                    "campaign_placement": [
+                        "facebook"
+                    ],
+                    "user_id": "643fa76ff0ed0bf6ab0c2c82",
+                    "shop_id": 902,
+                    "start_date": "04/28/2023",
+                    "end_date": "05/01/2023",
+                    "spend": 0,
+                    "impressions": 0,
+                    "clicks": 0,
+                    "orders": 0,
+                    "sales": 0,
+                    "roas": 0
+                },
+                {
+                    "campaign_name": "retargeting campaign",
+                    "campaign_id": "23854594149590431",
+                    "daily_budget": 86,
+                    "status": "Active",
+                    "campaign_placement": [
+                        "facebook"
+                    ],
+                    "user_id": "643fa76ff0ed0bf6ab0c2c82",
+                    "shop_id": 902,
+                    "start_date": "04/28/2023",
+                    "end_date": "05/01/2023",
+                    "spend": 0,
+                    "impressions": 0,
+                    "clicks": 0,
+                    "orders": 0,
+                    "sales": 0,
+                    "roas": 0
+                },
+                {
+                    "campaign_name": "retargeting campaign",
+                    "campaign_id": "23854594149590431",
+                    "daily_budget": 86,
+                    "status": "Ended",
+                    "campaign_placement": [
+                        "facebook"
+                    ],
+                    "user_id": "643fa76ff0ed0bf6ab0c2c82",
+                    "shop_id": 902,
+                    "start_date": "04/28/2023",
+                    "end_date": "05/01/2023",
+                    "spend": 0,
+                    "impressions": 0,
+                    "clicks": 0,
+                    "orders": 0,
+                    "sales": 0,
+                    "roas": 0
+                },
+                {
+                    "campaign_name": "retargeting campaign",
+                    "campaign_id": "23854594149590431",
+                    "daily_budget": 86,
+                    "status": "Disconnected",
+                    "campaign_placement": [
+                        "facebook"
+                    ],
+                    "user_id": "643fa76ff0ed0bf6ab0c2c82",
+                    "shop_id": 902,
+                    "start_date": "04/28/2023",
+                    "end_date": "05/01/2023",
+                    "spend": 0,
+                    "impressions": 0,
+                    "clicks": 0,
+                    "orders": 0,
+                    "sales": 0,
+                    "roas": 0
+                },
+                {
+                    "campaign_name": "retargeting campaign",
+                    "campaign_id": "23854594149590431",
+                    "daily_budget": 86,
+                    "status": "SCHEDULED",
+                    "campaign_placement": [
+                        "facebook"
+                    ],
+                    "user_id": "643fa76ff0ed0bf6ab0c2c82",
+                    "shop_id": 902,
+                    "start_date": "04/28/2023",
+                    "end_date": "05/01/2023",
+                    "spend": 0,
+                    "impressions": 0,
+                    "clicks": 0,
+                    "orders": 0,
+                    "sales": 0,
+                    "roas": 0
+                },
+                {
+                    "campaign_name": "syed campaign",
+                    "campaign_id": "23854594122030431",
+                    "daily_budget": 85,
+                    "status": "SCHEDULED",
+                    "campaign_placement": [
+                        "facebook"
+                    ],
+                    "user_id": "643fa76ff0ed0bf6ab0c2c82",
+                    "shop_id": 902,
+                    "start_date": "04/28/2023",
+                    "end_date": "04/30/2023",
+                    "spend": 0,
+                    "impressions": 0,
+                    "clicks": 0,
+                    "orders": 0,
+                    "sales": 0,
+                    "roas": 0
+                },
+                {
+                    "campaign_name": "arfah campaign",
+                    "campaign_id": "23854582774900431",
+                    "daily_budget": 87,
+                    "status": "PAUSED",
+                    "campaign_placement": [
+                        "facebook"
+                    ],
+                    "user_id": "643fa76ff0ed0bf6ab0c2c82",
+                    "shop_id": 902,
+                    "start_date": "04/19/2023",
+                    "end_date": "04/20/2023",
+                    "spend": 63.63,
+                    "impressions": 53,
+                    "clicks": 1,
+                    "orders": 0,
+                    "sales": 0,
+                    "roas": 0
+                },
+                {
+                    "campaign_name": "temp campaign",
+                    "campaign_id": "23854594122030431",
+                    "daily_budget": 85,
+                    "status": "errors",
+                    "campaign_placement": [
+                        "facebook",
+                        "instagram"
+                    ],
+                    "user_id": "643fa76ff0ed0bf6ab0c2c82",
+                    "shop_id": 902,
+                    "start_date": "04/28/2023",
+                    "end_date": "04/30/2023",
+                    "spend": 0,
+                    "impressions": 0,
+                    "clicks": 0,
+                    "orders": 0,
+                    "sales": 0,
+                    "roas": 0
+                },
+                {
+                    "campaign_name": "arfah2 campaign",
+                    "campaign_id": "23854582774900431",
+                    "daily_budget": 87,
+                    "status": "Archived",
+                    "campaign_placement": [
+                        "facebook"
+                    ],
+                    "user_id": "643fa76ff0ed0bf6ab0c2c82",
+                    "shop_id": 902,
+                    "start_date": "04/19/2023",
+                    "end_date": "04/20/2023",
+                    "spend": 63.63,
+                    "impressions": 53,
+                    "clicks": 1,
+                    "orders": 0,
+                    "sales": 0,
+                    "roas": 0
+                },
+            ],
+            "next": null
+        },
+        "ip": "103.97.184.106",
+        "time_taken": "0.096"
+    }
+]
 
 export const ProductApiData =
 {

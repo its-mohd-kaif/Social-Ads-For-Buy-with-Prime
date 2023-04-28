@@ -1,7 +1,7 @@
 import { Button, Card, Grid, CheckBox, FlexChild, FlexLayout, PageHeader, Pagination, Popover, TextField, ToolTip, Badge, TextStyles, OverlappingImages, AdvanceFilter, Tag, AutoComplete, Alert, Loader } from '@cedcommerce/ounce-ui'
 import React, { useEffect, useState } from 'react'
 import { Download, Filter, Plus } from 'react-feather'
-import { Actions, CampaignPlacement, CampaignStatus } from './DashUtility'
+import { Actions, CampaignPlacement, CampaignStatus, closeFilterHandler, DashboardApiData, FilterTagComp, myFilterHandler, removeFilterFromSelected } from './DashUtility'
 import { DI, DIProps } from "../../../Core"
 import { urlFetchCalls } from '../../../../src/Constant'
 import { environment } from '../../../../src/environments/environment'
@@ -13,193 +13,7 @@ interface paginationObj {
 /**
  * dummy api data
  */
-const apiData = [
-  {
-    "success": true,
-    "data": {
-      "total_count": 4,
-      "totalPageRead": "1",
-      "current_count": 2,
-      "rows": [
-        {
-          "campaign_name": "retargeting campaign",
-          "campaign_id": "23854594149590431",
-          "daily_budget": 86,
-          "status": "Pending",
-          "campaign_placement": [
-            "facebook"
-          ],
-          "user_id": "643fa76ff0ed0bf6ab0c2c82",
-          "shop_id": 902,
-          "start_date": "04/28/2023",
-          "end_date": "05/01/2023",
-          "spend": 0,
-          "impressions": 0,
-          "clicks": 0,
-          "orders": 0,
-          "sales": 0,
-          "roas": 0
-        },
-        {
-          "campaign_name": "retargeting campaign",
-          "campaign_id": "23854594149590431",
-          "daily_budget": 86,
-          "status": "Active",
-          "campaign_placement": [
-            "facebook"
-          ],
-          "user_id": "643fa76ff0ed0bf6ab0c2c82",
-          "shop_id": 902,
-          "start_date": "04/28/2023",
-          "end_date": "05/01/2023",
-          "spend": 0,
-          "impressions": 0,
-          "clicks": 0,
-          "orders": 0,
-          "sales": 0,
-          "roas": 0
-        },
-        {
-          "campaign_name": "retargeting campaign",
-          "campaign_id": "23854594149590431",
-          "daily_budget": 86,
-          "status": "Ended",
-          "campaign_placement": [
-            "facebook"
-          ],
-          "user_id": "643fa76ff0ed0bf6ab0c2c82",
-          "shop_id": 902,
-          "start_date": "04/28/2023",
-          "end_date": "05/01/2023",
-          "spend": 0,
-          "impressions": 0,
-          "clicks": 0,
-          "orders": 0,
-          "sales": 0,
-          "roas": 0
-        },
-        {
-          "campaign_name": "retargeting campaign",
-          "campaign_id": "23854594149590431",
-          "daily_budget": 86,
-          "status": "Disconnected",
-          "campaign_placement": [
-            "facebook"
-          ],
-          "user_id": "643fa76ff0ed0bf6ab0c2c82",
-          "shop_id": 902,
-          "start_date": "04/28/2023",
-          "end_date": "05/01/2023",
-          "spend": 0,
-          "impressions": 0,
-          "clicks": 0,
-          "orders": 0,
-          "sales": 0,
-          "roas": 0
-        },
-        {
-          "campaign_name": "retargeting campaign",
-          "campaign_id": "23854594149590431",
-          "daily_budget": 86,
-          "status": "SCHEDULED",
-          "campaign_placement": [
-            "facebook"
-          ],
-          "user_id": "643fa76ff0ed0bf6ab0c2c82",
-          "shop_id": 902,
-          "start_date": "04/28/2023",
-          "end_date": "05/01/2023",
-          "spend": 0,
-          "impressions": 0,
-          "clicks": 0,
-          "orders": 0,
-          "sales": 0,
-          "roas": 0
-        },
-        {
-          "campaign_name": "syed campaign",
-          "campaign_id": "23854594122030431",
-          "daily_budget": 85,
-          "status": "SCHEDULED",
-          "campaign_placement": [
-            "facebook"
-          ],
-          "user_id": "643fa76ff0ed0bf6ab0c2c82",
-          "shop_id": 902,
-          "start_date": "04/28/2023",
-          "end_date": "04/30/2023",
-          "spend": 0,
-          "impressions": 0,
-          "clicks": 0,
-          "orders": 0,
-          "sales": 0,
-          "roas": 0
-        },
-        {
-          "campaign_name": "arfah campaign",
-          "campaign_id": "23854582774900431",
-          "daily_budget": 87,
-          "status": "PAUSED",
-          "campaign_placement": [
-            "facebook"
-          ],
-          "user_id": "643fa76ff0ed0bf6ab0c2c82",
-          "shop_id": 902,
-          "start_date": "04/19/2023",
-          "end_date": "04/20/2023",
-          "spend": 63.63,
-          "impressions": 53,
-          "clicks": 1,
-          "orders": 0,
-          "sales": 0,
-          "roas": 0
-        },
-        {
-          "campaign_name": "temp campaign",
-          "campaign_id": "23854594122030431",
-          "daily_budget": 85,
-          "status": "errors",
-          "campaign_placement": [
-            "facebook",
-            "instagram"
-          ],
-          "user_id": "643fa76ff0ed0bf6ab0c2c82",
-          "shop_id": 902,
-          "start_date": "04/28/2023",
-          "end_date": "04/30/2023",
-          "spend": 0,
-          "impressions": 0,
-          "clicks": 0,
-          "orders": 0,
-          "sales": 0,
-          "roas": 0
-        },
-        {
-          "campaign_name": "arfah2 campaign",
-          "campaign_id": "23854582774900431",
-          "daily_budget": 87,
-          "status": "Archived",
-          "campaign_placement": [
-            "facebook"
-          ],
-          "user_id": "643fa76ff0ed0bf6ab0c2c82",
-          "shop_id": 902,
-          "start_date": "04/19/2023",
-          "end_date": "04/20/2023",
-          "spend": 63.63,
-          "impressions": 53,
-          "clicks": 1,
-          "orders": 0,
-          "sales": 0,
-          "roas": 0
-        },
-      ],
-      "next": null
-    },
-    "ip": "103.97.184.106",
-    "time_taken": "0.096"
-  }
-]
+
 function Dashboard(_props: DIProps) {
   /**
    * state for handling loader
@@ -309,7 +123,7 @@ function Dashboard(_props: DIProps) {
     GET(`${getCampaignsUrl}?shop_id=801&count=10&filter[shop_id]=801&activePage=1`)
       .then(() => {
         setLoader(false)
-        let temp = apiData[0].data.rows;
+        let temp = DashboardApiData[0].data.rows;
         let arr = []
         for (const element of temp) {
           let obj = {
@@ -435,44 +249,6 @@ function Dashboard(_props: DIProps) {
     }
   }
   /**
-   * method that check which filter is checked or not
-   */
-  const myFilterHandler = (val: any, id: number) => {
-    for (const element of myfilter) {
-      if (element.id === id && element.check === false) {
-        element.check = true;
-        setSelected([...selected, val.label])
-      } else if (element.id === id && element.check === true) {
-        element.check = false;
-        removeFilterFromSelected(val.label)
-      }
-    }
-    setMyFilter([...myfilter])
-  }
-  /**
-   * method that remove those filter from array which is not checked
-   */
-  const removeFilterFromSelected = (val: any) => {
-    for (let i = 0; i < selected.length; i++) {
-      if (selected[i] === val) {
-        selected.splice(i, 1)
-        setSelected([...selected])
-      }
-    }
-  }
-  /**
-   * method that mark uncheck from filter array
-   */
-  const uncheckFilter = (val: any) => {
-    for (const element of myfilter) {
-      if (element.label === val) {
-        element.check = false
-        removeFilterFromSelected(val)
-      }
-    }
-    setMyFilter([...myfilter])
-  }
-  /**
    * download report handler
    */
   const downloadReport = () => {
@@ -501,18 +277,7 @@ function Dashboard(_props: DIProps) {
       activePage: 2,
     }).then(() => { });
   }
-  /**
-   * on close filter we remove those who not selected after apply buttton
-   */
-  const closeFilterHandler = () => {
-    for (let i = 0; i < selected.length; i++) {
-      if (selected.length !== apply.length) {
-        while (selected[i] !== apply[i]) {
-          uncheckFilter(selected[i])
-        }
-      }
-    }
-  }
+
   /**
    * on count change pagination handler
    * @param val user select from grid 
@@ -625,7 +390,7 @@ function Dashboard(_props: DIProps) {
                                 name={val.label}
                                 checked={val.check}
                                 onClick={() => {
-                                  myFilterHandler(val, val.id)
+                                  myFilterHandler(val, val.id, myfilter, setMyFilter, setSelected, selected, removeFilterFromSelected)
                                 }}
                               />
                             ))}
@@ -636,7 +401,7 @@ function Dashboard(_props: DIProps) {
                     ]}
                     heading="Filters"
                     icon={<Filter color="#2a2a2a" size={16} />}
-                    onClose={closeFilterHandler}
+                    onClose={() => closeFilterHandler(selected, apply, myfilter, setSelected, setMyFilter)}
                     disableApply={false}
                     onApply={applyFilterHandler}
                     disableReset={false}
@@ -717,36 +482,20 @@ function Dashboard(_props: DIProps) {
               </FlexChild>
             </FlexLayout>
           </FlexLayout>
-          {apply.length === 1 ?
-            <Tag destroy={() => {
-              uncheckFilter(apply[0])
-              setApply([])
-            }}>
-              {apply[0]}</Tag> :
-            apply.length >= 1 ? <Popover
-              activator={<Tag destroy={() => {
-                myfilter.map((val: any) => (
-                  val.check = false
-                ))
-                setMyFilter([...myfilter])
-                setSelected([])
-                setApply([])
-              }} count={`+${apply.length - 1}`} popover togglePopup={() => setFilterPop(!filterPop)}>Status : {apply[0]}</Tag>}
-              onClose={() => setFilterPop(!filterPop)}
-              popoverContainer="element" open={filterPop}>
-              <FlexLayout spacing="mediumTight">
-                {apply.map((val: any, index: number) => (
-                  <Tag destroy={() => {
-                    uncheckFilter(val)
-                    apply.splice(index, 1);
-                    setApply([...apply])
-                  }} key={val}>{val}</Tag>
-                ))}
-              </FlexLayout>
-            </Popover> : null
-          }
-          <br></br>
-          <br></br>
+
+          {apply.length !== 0 ?
+            <>
+              <FilterTagComp
+                myfilter={myfilter}
+                setSelected={setSelected}
+                setMyFilter={setMyFilter}
+                setApply={setApply}
+                setFilterPop={setFilterPop}
+                apply={apply}
+                selected={selected}
+                filterPop={filterPop}
+              /><br></br><br></br> </> : null}
+
           <Grid
             scrollX={1500}
             columns={columns}

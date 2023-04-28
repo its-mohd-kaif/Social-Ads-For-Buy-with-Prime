@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Filter, RefreshCw } from 'react-feather'
 import { urlFetchCalls } from '../../../../../src/Constant'
 import { DI, DIProps } from "../../../../Core"
-import { ProductApiData, ProductsActions, ProductsStatus, ProductsTitle } from '../DashUtility'
+import { closeFilterHandler, FilterTagComp, myFilterHandler, ProductApiData, ProductsActions, ProductsStatus, ProductsTitle, removeFilterFromSelected } from '../DashUtility'
 import productFallBackImg from "../../../../Asests/Images/png/productFallBack.png"
 interface paginationObj {
     totalProducts: number
@@ -118,41 +118,41 @@ function Products(_props: DIProps) {
     /**
    * method that check which filter is checked or not
    */
-    const myFilterHandler = (val: any, id: number) => {
-        for (const element of myfilter) {
-            if (element.id === id && element.check === false) {
-                element.check = true;
-                setSelected([...selected, val.label])
-            } else if (element.id === id && element.check === true) {
-                element.check = false;
-                removeFilterFromSelected(val.label)
-            }
-        }
-        setMyFilter([...myfilter])
-    }
+    // const myFilterHandler = (val: any, id: number) => {
+    //     for (const element of myfilter) {
+    //         if (element.id === id && element.check === false) {
+    //             element.check = true;
+    //             setSelected([...selected, val.label])
+    //         } else if (element.id === id && element.check === true) {
+    //             element.check = false;
+    //             removeFilterFromSelected(val.label)
+    //         }
+    //     }
+    //     setMyFilter([...myfilter])
+    // }
     /**
    * method that remove those filter from array which is not checked
    */
-    const removeFilterFromSelected = (val: any) => {
-        for (let i = 0; i < selected.length; i++) {
-            if (selected[i] === val) {
-                selected.splice(i, 1)
-                setSelected([...selected])
-            }
-        }
-    }
+    // const removeFilterFromSelected = (val: any, selected: any, setSelected: any) => {
+    //     for (let i = 0; i < selected.length; i++) {
+    //         if (selected[i] === val) {
+    //             selected.splice(i, 1)
+    //             setSelected([...selected])
+    //         }
+    //     }
+    // }
     /**
     * method that mark uncheck from filter array
     */
-    const uncheckFilter = (val: any) => {
-        for (const element of myfilter) {
-            if (element.label === val) {
-                element.check = false
-                removeFilterFromSelected(val)
-            }
-        }
-        setMyFilter([...myfilter])
-    }
+    // const uncheckFilter = (val: any) => {
+    //     for (const element of myfilter) {
+    //         if (element.label === val) {
+    //             element.check = false
+    //             removeFilterFromSelected(val, selected, setSelected)
+    //         }
+    //     }
+    //     setMyFilter([...myfilter])
+    // }
     /**
   * apply filter handler
   */
@@ -162,15 +162,15 @@ function Products(_props: DIProps) {
     /**
    * on close filter we remove those who not selected after apply buttton
    */
-    const closeFilterHandler = () => {
-        for (let i = 0; i < selected.length; i++) {
-            if (selected.length !== apply.length) {
-                while (selected[i] !== apply[i]) {
-                    uncheckFilter(selected[i])
-                }
-            }
-        }
-    }
+    // const closeFilterHandler = () => {
+    //     for (let i = 0; i < selected.length; i++) {
+    //         if (selected.length !== apply.length) {
+    //             while (selected[i] !== apply[i]) {
+    //                 uncheckFilter(selected[i], myfilter, selected, setSelected, setMyFilter)
+    //             }
+    //         }
+    //     }
+    // }
     /**
     * on count change pagination handler
     * @param val user select from grid 
@@ -272,7 +272,7 @@ function Products(_props: DIProps) {
                                                                 name={val.label}
                                                                 checked={val.check}
                                                                 onClick={() => {
-                                                                    myFilterHandler(val, val.id)
+                                                                    myFilterHandler(val, val.id, myfilter, setMyFilter, setSelected, selected, removeFilterFromSelected)
                                                                 }}
                                                             />
                                                         ))}
@@ -284,7 +284,7 @@ function Products(_props: DIProps) {
                                         heading="Filter Heading"
                                         icon={<Filter color="#2a2a2a" size={16} />}
                                         onApply={applyFilterHandler}
-                                        onClose={closeFilterHandler}
+                                        onClose={() => closeFilterHandler(selected, apply, myfilter, setSelected, setMyFilter)}
                                         disableReset={false}
                                         resetFilter={() => {
                                             myfilter.map((val: any) => (
@@ -299,7 +299,7 @@ function Products(_props: DIProps) {
                                 </>
                             </FlexChild>
                         </FlexLayout>
-                        {apply.length === 1 ?
+                        {/* {apply.length === 1 ?
                             <Tag destroy={() => {
                                 uncheckFilter(apply[0])
                                 setApply([])
@@ -326,7 +326,18 @@ function Products(_props: DIProps) {
                                     ))}
                                 </FlexLayout>
                             </Popover> : null
-                        }
+                        } */}
+                        {apply.length !== 0 ?
+                            <FilterTagComp
+                                myfilter={myfilter}
+                                setSelected={setSelected}
+                                setMyFilter={setMyFilter}
+                                setApply={setApply}
+                                setFilterPop={setFilterPop}
+                                apply={apply}
+                                selected={selected}
+                                filterPop={filterPop}
+                            /> : null}
                         <br></br>
                         <Grid
                             columns={gridColumns}
