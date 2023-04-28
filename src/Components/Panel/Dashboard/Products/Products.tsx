@@ -116,61 +116,11 @@ function Products(_props: DIProps) {
         }
     ]
     /**
-   * method that check which filter is checked or not
-   */
-    // const myFilterHandler = (val: any, id: number) => {
-    //     for (const element of myfilter) {
-    //         if (element.id === id && element.check === false) {
-    //             element.check = true;
-    //             setSelected([...selected, val.label])
-    //         } else if (element.id === id && element.check === true) {
-    //             element.check = false;
-    //             removeFilterFromSelected(val.label)
-    //         }
-    //     }
-    //     setMyFilter([...myfilter])
-    // }
-    /**
-   * method that remove those filter from array which is not checked
-   */
-    // const removeFilterFromSelected = (val: any, selected: any, setSelected: any) => {
-    //     for (let i = 0; i < selected.length; i++) {
-    //         if (selected[i] === val) {
-    //             selected.splice(i, 1)
-    //             setSelected([...selected])
-    //         }
-    //     }
-    // }
-    /**
-    * method that mark uncheck from filter array
-    */
-    // const uncheckFilter = (val: any) => {
-    //     for (const element of myfilter) {
-    //         if (element.label === val) {
-    //             element.check = false
-    //             removeFilterFromSelected(val, selected, setSelected)
-    //         }
-    //     }
-    //     setMyFilter([...myfilter])
-    // }
-    /**
   * apply filter handler
   */
     const applyFilterHandler = () => {
         setApply([...selected]);
     }
-    /**
-   * on close filter we remove those who not selected after apply buttton
-   */
-    // const closeFilterHandler = () => {
-    //     for (let i = 0; i < selected.length; i++) {
-    //         if (selected.length !== apply.length) {
-    //             while (selected[i] !== apply[i]) {
-    //                 uncheckFilter(selected[i], myfilter, selected, setSelected, setMyFilter)
-    //             }
-    //         }
-    //     }
-    // }
     /**
     * on count change pagination handler
     * @param val user select from grid 
@@ -197,7 +147,7 @@ function Products(_props: DIProps) {
         setData(newGrid)
     }
     /**
-    * prev page handler
+    * prev page handler function
      */
     const prevPageHandler = () => {
         setPagination({
@@ -299,34 +249,6 @@ function Products(_props: DIProps) {
                                 </>
                             </FlexChild>
                         </FlexLayout>
-                        {/* {apply.length === 1 ?
-                            <Tag destroy={() => {
-                                uncheckFilter(apply[0])
-                                setApply([])
-                            }}>
-                                {apply[0]}</Tag> :
-                            apply.length >= 1 ? <Popover
-                                activator={<Tag destroy={() => {
-                                    myfilter.map((val: any) => (
-                                        val.check = false
-                                    ))
-                                    setMyFilter([...myfilter])
-                                    setSelected([])
-                                    setApply([])
-                                }} count={`+${apply.length - 1}`} popover togglePopup={() => setFilterPop(!filterPop)}>Status : {apply[0]}</Tag>}
-                                onClose={() => setFilterPop(!filterPop)}
-                                popoverContainer="element" open={filterPop}>
-                                <FlexLayout spacing="mediumTight">
-                                    {apply.map((val: any, index: number) => (
-                                        <Tag destroy={() => {
-                                            uncheckFilter(val)
-                                            apply.splice(index, 1);
-                                            setApply([...apply])
-                                        }} key={val}>{val}</Tag>
-                                    ))}
-                                </FlexLayout>
-                            </Popover> : null
-                        } */}
                         {apply.length !== 0 ?
                             <FilterTagComp
                                 myfilter={myfilter}
