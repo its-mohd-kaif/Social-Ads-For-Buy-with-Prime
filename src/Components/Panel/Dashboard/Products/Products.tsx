@@ -147,7 +147,7 @@ function Products(_props: DIProps) {
         setData(newGrid)
     }
     /**
-    * prev page handler
+    * prev page handler function
      */
     const prevPageHandler = () => {
         setPagination({
