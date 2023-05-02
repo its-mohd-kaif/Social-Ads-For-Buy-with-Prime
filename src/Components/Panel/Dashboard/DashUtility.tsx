@@ -1,11 +1,13 @@
-import { Badge, Button, FlexLayout, OverlappingImages, Popover, TextStyles, Tag } from "@cedcommerce/ounce-ui"
-import React, { useState } from "react"
+import { Badge, Button, FlexLayout, OverlappingImages, Popover, TextStyles, Tag, Modal, Accordion, FlexChild, Loader } from "@cedcommerce/ounce-ui"
+import React, { useEffect, useState } from "react"
 import { AlertTriangle, } from "react-feather"
+import { DI, DIProps } from "../../../../src/Core"
 import GrayDot from "../../../../src/Asests/Images/svg/GrayDot"
 import GreenDot from "../../../../src/Asests/Images/svg/GreenDot"
 import actions from "../../../Asests/Images/png/actions.png"
 import fb from "../../../Asests/Images/png/fb.png"
 import ig from "../../../Asests/Images/png/ig.png"
+import { APP_TARGET_NAME, urlFetchCalls } from "../../../../src/Constant"
 
 export const Actions = (_props: any) => {
     const [openActions, setOpenActions] = useState<boolean>(false)
@@ -109,8 +111,58 @@ export const ProductsTitle = (title: any, items: any) => {
         return <TextStyles>{title}</TextStyles>
     }
 }
-
-export const ProductsStatus = (_props: any) => {
+interface ProductTypes extends DIProps {
+    data: any
+    status: any
+}
+interface InfoTypes {
+    title: string;
+    description: string;
+    solutions: string | undefined
+    response: boolean | null;
+}
+const ProductsStatus = (param: ProductTypes) => {
+    const _props = param.status;
+    const { di: { POST } } = param
+    const { post: {
+        solutionsUrl
+    } } = urlFetchCalls
+    const [open, setOpen] = useState<boolean>(false);
+    const [modal2, setModal2] = useState<boolean>(false);
+    const [accordion, setAccordion] = useState<boolean>(false);
+    const [multiaccor, setMultiacor] = useState<any>([]);
+    const [multisol, setMultisol] = useState<any>([]);
+    const [loader, setLoader] = useState<boolean>(false)
+    const [info, setInfo] = useState<any>([])
+    const ResolutionsApi = (propsTitle: string, propDescription: string, propSku: string) => {
+        setLoader(true)
+        POST(`${solutionsUrl}`,
+            [
+                {
+                    "title": propsTitle,
+                    "marketplace": APP_TARGET_NAME
+                }
+            ]
+        ).then((res) => {
+            if (propSku === "") {
+                setOpen(true)
+            } else {
+                setModal2(true)
+            }
+            setLoader(false)
+            let obj = {
+                title: propsTitle,
+                description: propDescription,
+                sku: propSku,
+                response: res.data[0].solution_exists,
+                solutions: res.data[0].answer,
+            }
+            info.push(obj)
+            setInfo([...info])
+            setMultiacor([...multiaccor, false])
+            setMultisol([...multisol, false])
+        })
+    }
     if (_props.length === 1 && _props[0].type === "simple" && _props[0].visibility === "Catalog and Search") {
         if (_props[0]["status"] === "active") {
             return <FlexLayout halign="start" spacing="extraTight">
@@ -120,10 +172,51 @@ export const ProductsStatus = (_props: any) => {
                 </TextStyles>
             </FlexLayout>
         } else if (_props[0]["status"] === "error") {
-            return <FlexLayout halign="start" spacing="extraTight">
-                <AlertTriangle size={15} color='red' />
-                <TextStyles textcolor="negative">Errors</TextStyles>
-            </FlexLayout>
+            return <>
+                <Button loading={loader} onClick={() => {
+                    ResolutionsApi(_props[0].errors[0].title, _props[0].errors[0].description, "")
+                }} icon={<AlertTriangle size={15} color='red' />} type="DangerPlain">
+                    Errors
+                </Button>
+                <Modal
+                    close={() => setOpen(!open)}
+                    heading="Errors"
+                    modalSize="small"
+                    open={open}>
+                    {info.length !== 0 ? <FlexLayout direction="vertical" spacing="extraTight">
+                        <FlexChild>
+                            <>
+                                <FlexLayout valign="center" spacing="tight">
+                                    <AlertTriangle size={17} color='red' />
+                                    <TextStyles fontweight="extraBolder">{info[0].title}</TextStyles>
+                                </FlexLayout>
+                                <div style={{ marginLeft: "28px" }}>
+                                    <TextStyles>
+                                        {info[0].description}
+                                    </TextStyles>
+                                </div>
+                            </>
+                        </FlexChild>
+                        <FlexChild>
+                            <>
+                                {info[0].solutions !== undefined && info[0].response ? <Accordion
+                                    active={accordion}
+                                    boxed
+                                    icon
+                                    iconAlign="left"
+                                    onClick={() => setAccordion(!accordion)}
+                                    title="Resolutions"
+                                >
+                                    <TextStyles textcolor="light">
+                                        {info[0].solutions}
+                                    </TextStyles>
+                                </Accordion> : null}
+                            </>
+                        </FlexChild>
+                    </FlexLayout> : null}
+
+                </Modal>
+            </>
         } else {
             return <FlexLayout halign="start" spacing="extraTight">
                 <GrayDot />
@@ -157,16 +250,81 @@ export const ProductsStatus = (_props: any) => {
                         {totalPending > 0 && totalPending < 10 ? `0${totalPending}` : totalPending} Pending
                     </TextStyles>
                 </FlexLayout> : null}
-                {totalErrors !== 0 ? <FlexLayout spacing="extraTight">
-                    <AlertTriangle size={15} color='red' />
-                    <div style={{ color: "red" }}>
-                        <TextStyles>{totalErrors > 0 && totalErrors < 10 ? `0${totalErrors}` : totalErrors} Errors</TextStyles>
-                    </div>
-                </FlexLayout> : null}
+                {totalErrors !== 0 ?
+                    <>
+                        <Button disable={loader} onClick={() => {
+                            _props.map((val: any) => {
+                                if (val.status === "error") {
+                                    ResolutionsApi(val.errors[0].title, val.errors[0].description, val.sku)
+                                }
+                            })
+                        }} icon={<AlertTriangle size={15} color='red' />} type="DangerPlain">
+                            {totalErrors > 0 && totalErrors < 10 ? `0${totalErrors}` : totalErrors} Errors
+                        </Button>
+                        <Modal
+                            close={() => setModal2(!modal2)}
+                            heading="Errors"
+                            modalSize="small"
+                            open={modal2}>
+                            {info.map((val: any, index: number) => (
+                                <>
+                                    <Accordion
+                                        boxed
+                                        icon
+                                        iconAlign="left"
+                                        onClick={() => {
+                                            multiaccor[index] = !multiaccor[index]
+                                            setMultiacor([...multiaccor])
+                                        }}
+                                        active={multiaccor[index]}
+                                        title={<TextStyles fontweight="bold" content={`Variants sku : ${val.sku}`} textcolor="negative" />}
+                                    >
+                                        <FlexLayout direction="vertical" spacing="extraTight">
+                                            <FlexChild>
+                                                <>
+                                                    <FlexLayout valign="center" spacing="tight">
+                                                        <AlertTriangle size={17} color='red' />
+                                                        <TextStyles fontweight="extraBolder">{val.title}</TextStyles>
+                                                    </FlexLayout>
+                                                    <div style={{ marginLeft: "28px" }}>
+                                                        <TextStyles>
+                                                            {val.description}
+                                                        </TextStyles>
+                                                    </div>
+                                                </>
+                                            </FlexChild>
+                                            <FlexChild>
+                                                <>
+                                                    {val.solutions !== undefined && val.response ? <Accordion
+                                                        active={multisol[index]}
+                                                        boxed
+                                                        icon
+                                                        iconAlign="left"
+                                                        onClick={() => {
+                                                            multisol[index] = !multisol[index]
+                                                            setMultisol([...multisol])
+                                                        }}
+                                                        title="Resolutions"
+                                                    >
+                                                        <TextStyles textcolor="light">
+                                                            {val.solutions}
+                                                        </TextStyles>
+                                                    </Accordion> : null}
+                                                </>
+                                            </FlexChild>
+                                        </FlexLayout>
+                                    </Accordion>
+                                </>
+                            ))}
+                        </Modal>
+                    </>
+                    : null}
             </FlexLayout>
         </>
     }
 }
+
+export default DI(ProductsStatus)
 
 /**
 * method that check which filter is checked or not
@@ -214,7 +372,6 @@ export const closeFilterHandler = (selected: any, apply: any, myfilter: any, set
 }
 
 export const FilterTagComp = (_props: any) => {
-    console.log("TAG", _props);
     const { myfilter,
         setSelected,
         setMyFilter,
