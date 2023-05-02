@@ -3,12 +3,15 @@ import React, { useEffect, useState } from 'react'
 import { Filter, RefreshCw } from 'react-feather'
 import { urlFetchCalls } from '../../../../../src/Constant'
 import { DI, DIProps } from "../../../../Core"
-import { closeFilterHandler, FilterTagComp, myFilterHandler, ProductApiData, ProductsActions, ProductsStatus, ProductsTitle, removeFilterFromSelected } from '../DashUtility'
+import ProductsStatus, { closeFilterHandler, FilterTagComp, myFilterHandler, ProductApiData, ProductsActions, ProductsTitle, removeFilterFromSelected } from '../DashUtility'
+
 import productFallBackImg from "../../../../Asests/Images/png/productFallBack.png"
 interface paginationObj {
     totalProducts: number
     activePage: number
     countPerPage: number
+    start: number
+    end: number
 }
 function Products(_props: DIProps) {
     const [allData, setAllData] = useState<any>([])
@@ -16,8 +19,10 @@ function Products(_props: DIProps) {
     const [data, setData] = useState<any>([]);
     const [pagination, setPagination] = useState<paginationObj>({
         totalProducts: 0,
-        activePage: 0,
-        countPerPage: 0,
+        activePage: 1,
+        countPerPage: 5,
+        start: 0,
+        end: 5,
     })
     const [search, setSearch] = useState<string>("")
     const { get: { getRefineProductsUrl } } = urlFetchCalls;
@@ -51,11 +56,16 @@ function Products(_props: DIProps) {
     /**
    * state for open and close filter
    */
+    const [gridLoader, setGridLoader] = useState<boolean>(false)
+
+    const { activePage, countPerPage, totalProducts, start, end } = pagination
     const [filterPop, setFilterPop] = useState<boolean>(false)
     useEffect(() => {
+        setGridLoader(true)
         GET(`${getRefineProductsUrl}?is_only_parent_allow=false&filter[items.buyability][1]=BUYABLE&activePage=1&count=5`)
             .then(() => {
                 setLoader(false)
+                setGridLoader(false)
                 let arr = []
                 let temp = ProductApiData.rows;
                 for (const element of temp) {
@@ -68,22 +78,15 @@ function Products(_props: DIProps) {
                             width={48}
                         />,
                         title: ProductsTitle(element.title, element.items),
-                        status: ProductsStatus(element.items),
+                        status: <ProductsStatus data={pagination} status={element.items} />,
                         actions: <ProductsActions open={element.container_id} status={element.items} />
                     }
                     arr.push(obj)
                 }
                 setAllData(arr)
-                setData(arr.slice(0, 5))
-                setPagination({
-                    activePage: 1,
-                    countPerPage: 5,
-                    totalProducts: arr.length
-                })
+                setData(arr.slice(start, end))
             })
-    }, [])
-
-    const { activePage, countPerPage, totalProducts } = pagination
+    }, [start, end])
 
     const gridColumns = [
         {
@@ -105,7 +108,7 @@ function Products(_props: DIProps) {
             dataIndex: 'status',
             key: 'status',
             title: 'Status',
-            width: 140,
+            width: 160,
         },
         {
             align: 'left',
@@ -137,42 +140,43 @@ function Products(_props: DIProps) {
     * next page handler
     */
     const nextPageHandler = () => {
+
+        let start = countPerPage * activePage;
+        let end = countPerPage * activePage + countPerPage;
         setPagination({
             ...pagination,
             activePage: activePage + 1,
+            start: start,
+            end: end
         })
-        let start = countPerPage * activePage;
-        let end = countPerPage * activePage + countPerPage;
-        let newGrid = allData.slice(start, end)
-        setData(newGrid)
     }
     /**
     * prev page handler function
      */
     const prevPageHandler = () => {
-        setPagination({
-            ...pagination,
-            activePage: activePage - 1,
-        })
         //for delay active state value we more decrement value by one
         let start = countPerPage * (activePage - 1) - countPerPage;
         let end = countPerPage * (activePage - 1);
-        let newGrid = allData.slice(start, end)
-        setData(newGrid)
+        setPagination({
+            ...pagination,
+            activePage: activePage - 1,
+            start: start,
+            end: end
+        })
     }
     /**
    * on enter change handler
    * @param val user press on grid
    */
     const onEnterChange = (val: number) => {
-        setPagination({
-            ...pagination,
-            activePage: val
-        })
         let start = countPerPage * val - countPerPage;
         let end = countPerPage * val;
-        let newGrid = allData.slice(start, end)
-        setData(newGrid)
+        setPagination({
+            ...pagination,
+            activePage: val,
+            start: start,
+            end: end
+        })
     }
     if (loader === false)
         return (
@@ -261,10 +265,11 @@ function Products(_props: DIProps) {
                                 filterPop={filterPop}
                             /> : null}
                         <br></br>
-                        <Grid
+                        {gridLoader === true ? <Loader type='Loader1' /> : <Grid
                             columns={gridColumns}
                             dataSource={data}
-                        />
+                        />}
+
                         <Pagination
                             countPerPage={countPerPage}
                             currentPage={activePage}
@@ -272,7 +277,7 @@ function Products(_props: DIProps) {
                             onEnter={(e: any) => onEnterChange(e)}
                             onNext={nextPageHandler}
                             onPrevious={prevPageHandler}
-                            totalitem={totalProducts}
+                            totalitem={allData.length}
                             optionPerPage={[
                                 {
                                     label: '5',
