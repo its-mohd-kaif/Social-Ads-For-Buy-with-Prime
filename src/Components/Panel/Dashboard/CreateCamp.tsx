@@ -32,6 +32,7 @@ interface stateObj {
     gender: string;
     insta: boolean;
     facebook: boolean;
+    selectAudience: string;
 }
 interface errorObj {
     nameErr: boolean;
@@ -46,6 +47,7 @@ interface ageArrObj {
 interface initResObj {
     instaConnected: boolean;
     productsCount: number;
+    audience: any[]
 }
 function CreateCamp(_props: DIProps) {
     /**
@@ -66,6 +68,7 @@ function CreateCamp(_props: DIProps) {
         gender: "",
         insta: false,
         facebook: true,
+        selectAudience: ""
     })
     /**
      * State For Store Errors
@@ -80,15 +83,16 @@ function CreateCamp(_props: DIProps) {
      */
     const [initRes, setInitRes] = useState<initResObj>({
         instaConnected: false,
-        productsCount: 0
+        productsCount: 0,
+        audience: []
     })
     const [checkCircle, setCheckCircle] = useState<string>("#1c2433")
     const regexOnlyStr = /^[A-Z]+$/i;
-    const { di: { GET } } = _props
+    const { di: { GET }, redux: { current, user_id } } = _props
     const { get: { initCampaignUrl } } = urlFetchCalls
-    const { name, startDate, endDate, dailyBudget, adText, minAge, maxAge, gender, insta, facebook } = state
+    const { name, startDate, endDate, dailyBudget, adText, minAge, maxAge, gender, insta, facebook, selectAudience } = state
     const { nameErr, dailyErr, adTextErr } = error
-    const { instaConnected, productsCount } = initRes
+    const { instaConnected, productsCount, audience } = initRes
     const [minAgeArr, setMinAgeArr] = useState<ageArrObj[]>([])
     const [maxAgeArr, setMaxAgeArr] = useState<ageArrObj[]>([])
     useEffect(() => {
@@ -133,12 +137,25 @@ function CreateCamp(_props: DIProps) {
     }, [])
 
     const getInitCampaign = () => {
-        GET(`${initCampaignUrl}`)
+        GET(initCampaignUrl, { shop_id: sessionStorage.getItem(`${user_id}_target_id`) })
             .then((res) => {
                 if (res.success === true) {
+                    const { data: { audience } } = res
+                    let tempArr: any = []
+                    if (audience !== undefined) {
+                        console.log(audience)
+                        Object.values(audience).forEach(element => {
+                            let obj = {
+                                label: element,
+                                value: element,
+                            }
+                            tempArr.push(obj)
+                        });
+                    }
                     setInitRes({
                         instaConnected: res.data.is_instagram_connected,
-                        productsCount: res.data.products_count
+                        productsCount: res.data.products_count,
+                        audience: tempArr
                     })
                 }
             })
@@ -146,15 +163,17 @@ function CreateCamp(_props: DIProps) {
 
     const disabledStart = (current: any) => {
         if (endDate !== '') {
-            return current > moment(endDate).add(-1, 'day');
+            const end_date: any = endDate.split('/')
+            return (current && current < moment().add(-1, 'day')) || current > moment([end_date[2], end_date[0] - 1, end_date[1]]).add(0, 'day');
         } else {
             return current < moment().add(-1, 'day');
         }
     };
     const disabledEnd = (current: any) => {
         if (startDate !== '') {
-            return current < moment(startDate).add(+1, 'day');
+            return current && current < moment(startDate).add(1, 'day');
         }
+        return current && current < moment(startDate).add(1, 'day');
     };
     useEffect(() => {
         checkCircleEnable()
@@ -252,10 +271,18 @@ function CreateCamp(_props: DIProps) {
                                                     mobileWidth="100">
                                                     <Datepicker
                                                         onChange={(e: any) => {
-                                                            setState({
-                                                                ...state,
-                                                                startDate: moment(e).format('MM/DD/YYYY')
-                                                            })
+                                                            if (e === null) {
+                                                                setState({
+                                                                    ...state,
+                                                                    startDate: ""
+                                                                })
+                                                            } else {
+                                                                setState({
+                                                                    ...state,
+                                                                    startDate: moment(e).format('MM/DD/YYYY')
+                                                                })
+                                                            }
+
                                                         }}
                                                         disabledDate={disabledStart}
                                                         format="MM/DD/YYYY"
@@ -271,10 +298,18 @@ function CreateCamp(_props: DIProps) {
                                                     mobileWidth="100">
                                                     <Datepicker
                                                         onChange={(e: any) => {
-                                                            setState({
-                                                                ...state,
-                                                                endDate: moment(e).format('MM/DD/YYYY')
-                                                            })
+                                                            if (e === null) {
+                                                                setState({
+                                                                    ...state,
+                                                                    endDate: ""
+                                                                })
+                                                            } else {
+                                                                setState({
+                                                                    ...state,
+                                                                    endDate: moment(e).format('MM/DD/YYYY')
+                                                                })
+                                                            }
+
                                                         }}
                                                         disabledDate={disabledEnd}
                                                         format="MM/DD/YYYY"
@@ -597,23 +632,14 @@ function CreateCamp(_props: DIProps) {
                                                         </TextStyles>
                                                         <Select
                                                             labelInLine
-                                                            name="Target customers who viewed your product, but did not purchase."
-                                                            onChange={function noRefCheck() { }}
-                                                            options={[
-                                                                {
-                                                                    label: 'Option 1',
-                                                                    value: '1',
-                                                                },
-                                                                {
-                                                                    label: 'Option 2',
-                                                                    value: '2',
-                                                                },
-                                                                {
-                                                                    label: 'Option 3',
-                                                                    value: '3',
-                                                                },
-                                                            ]}
-                                                            value=""
+                                                            onChange={(e) => {
+                                                                setState({
+                                                                    ...state,
+                                                                    selectAudience: e
+                                                                })
+                                                            }}
+                                                            options={audience}
+                                                            value={selectAudience}
                                                         />
                                                         <hr></hr>
                                                         <CheckBox
