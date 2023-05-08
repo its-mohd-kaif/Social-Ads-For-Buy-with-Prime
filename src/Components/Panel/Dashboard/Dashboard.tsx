@@ -9,6 +9,8 @@ interface paginationObj {
   totalProducts: number
   activePage: number
   countPerPage: number
+  start: number
+  end: number
 }
 /**
  * dummy api data
@@ -36,8 +38,10 @@ function Dashboard(_props: DIProps) {
    */
   const [pagination, setPagination] = useState<paginationObj>({
     totalProducts: 0,
-    activePage: 0,
-    countPerPage: 0,
+    activePage: 1,
+    countPerPage: 5,
+    start: 0,
+    end: 5,
   })
   /**
    * state that holds all api data
@@ -114,15 +118,21 @@ function Dashboard(_props: DIProps) {
    * array state for apply filter value
    */
   const [apply, setApply] = useState<any>([])
+  const [gridLoader, setGridLoader] = useState<boolean>(false)
+
   const { di: { GET, globalState: { get } }, redux: { current } } = _props
   const { get: { getCampaignsUrl, bulkExportCSV } } = urlFetchCalls
+  const { check1, check2, check3, check4 } = checkbox;
+  const { activePage, countPerPage, totalProducts, start, end } = pagination
   /**
    * after mounting get campaign api call
    */
   useEffect(() => {
+    setGridLoader(true)
     GET(`${getCampaignsUrl}?shop_id=801&count=10&filter[shop_id]=801&activePage=1`)
       .then(() => {
         setLoader(false)
+        setGridLoader(false)
         let temp = DashboardApiData[0].data.rows;
         let arr = []
         for (const element of temp) {
@@ -146,17 +156,11 @@ function Dashboard(_props: DIProps) {
         }
         setColumns(gridColumns);
         setAllData(arr)
-        setData(arr.slice(0, 5))
-        setPagination({
-          activePage: 1,
-          countPerPage: 5,
-          totalProducts: arr.length
-        })
+        setData(arr.slice(start, end))
       })
-  }, [])
+  }, [start, end])
 
-  const { check1, check2, check3, check4 } = checkbox;
-  const { activePage, countPerPage, totalProducts } = pagination
+
   const gridColumns = [
     {
       align: 'center',
@@ -294,42 +298,42 @@ function Dashboard(_props: DIProps) {
    * next page handler
    */
   const nextPageHandler = () => {
+    let start = countPerPage * activePage;
+    let end = countPerPage * activePage + countPerPage;
     setPagination({
       ...pagination,
       activePage: activePage + 1,
+      start: start,
+      end: end
     })
-    let start = countPerPage * activePage;
-    let end = countPerPage * activePage + countPerPage;
-    let newGrid = allData.slice(start, end)
-    setData(newGrid)
   }
   /**
    * prev page handler
    */
   const prevPageHandler = () => {
-    setPagination({
-      ...pagination,
-      activePage: activePage - 1,
-    })
     //for delay active state value we more decrement value by one
     let start = countPerPage * (activePage - 1) - countPerPage;
     let end = countPerPage * (activePage - 1);
-    let newGrid = allData.slice(start, end)
-    setData(newGrid)
+    setPagination({
+      ...pagination,
+      activePage: activePage - 1,
+      start: start,
+      end: end
+    })
   }
   /**
    * on enter change handler
    * @param val user press on grid
    */
   const onEnterChange = (val: number) => {
-    setPagination({
-      ...pagination,
-      activePage: val
-    })
     let start = countPerPage * val - countPerPage;
     let end = countPerPage * val;
-    let newGrid = allData.slice(start, end)
-    setData(newGrid)
+    setPagination({
+      ...pagination,
+      activePage: val,
+      start: start,
+      end: end
+    })
   }
   if (loader === false)
     return (
@@ -495,12 +499,11 @@ function Dashboard(_props: DIProps) {
                 selected={selected}
                 filterPop={filterPop}
               /><br></br><br></br> </> : null}
-
-          <Grid
+          {gridLoader === true ? <Loader type='Loader1' /> : <Grid
             scrollX={1500}
             columns={columns}
             dataSource={data}
-          />
+          />}
           <Pagination
             countPerPage={countPerPage}
             currentPage={activePage}
@@ -508,7 +511,7 @@ function Dashboard(_props: DIProps) {
             onEnter={(e: any) => onEnterChange(e)}
             onNext={nextPageHandler}
             onPrevious={prevPageHandler}
-            totalitem={totalProducts}
+            totalitem={allData.length}
             optionPerPage={[
               {
                 label: '5',

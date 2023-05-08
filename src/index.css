@@ -527,3 +527,13 @@ button.inte-fbBtn:hover {
         display: none;
     }
 }
+
+
+/* -------MY CSS---------- */
+
+/* CSS For Custom Alert Use In Prospective Audience Search Results Selects */
+
+.customAlert > .inte-Alert--default {
+    background-color: white !important;
+    border: 1px solid white;
+}

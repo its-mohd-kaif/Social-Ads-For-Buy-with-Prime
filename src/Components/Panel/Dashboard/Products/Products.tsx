@@ -56,10 +56,11 @@ function Products(_props: DIProps) {
     /**
    * state for open and close filter
    */
+    const [filterPop, setFilterPop] = useState<boolean>(false)
+
     const [gridLoader, setGridLoader] = useState<boolean>(false)
 
     const { activePage, countPerPage, totalProducts, start, end } = pagination
-    const [filterPop, setFilterPop] = useState<boolean>(false)
     useEffect(() => {
         setGridLoader(true)
         GET(`${getRefineProductsUrl}?is_only_parent_allow=false&filter[items.buyability][1]=BUYABLE&activePage=1&count=5`)

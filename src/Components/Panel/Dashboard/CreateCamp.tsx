@@ -13,10 +13,13 @@ import {
     Radio,
     Select,
     CheckBox,
+    AutoComplete,
+    Tabs,
+    Tag
 } from '@cedcommerce/ounce-ui';
 import { DI, DIProps } from "../../../../src/Core"
 import moment from 'moment'
-import { CheckCircle, Search } from 'react-feather';
+import { CheckCircle, Search, } from 'react-feather';
 import { urlFetchCalls } from '../../../../src/Constant';
 /**
  * State Types Define
@@ -89,12 +92,25 @@ function CreateCamp(_props: DIProps) {
     const [checkCircle, setCheckCircle] = useState<string>("#1c2433")
     const regexOnlyStr = /^[A-Z]+$/i;
     const { di: { GET }, redux: { current, user_id } } = _props
-    const { get: { initCampaignUrl } } = urlFetchCalls
+    const { get: { initCampaignUrl, getAudience } } = urlFetchCalls
     const { name, startDate, endDate, dailyBudget, adText, minAge, maxAge, gender, insta, facebook, selectAudience } = state
     const { nameErr, dailyErr, adTextErr } = error
     const { instaConnected, productsCount, audience } = initRes
+    /**
+     * Min Age Array
+     */
     const [minAgeArr, setMinAgeArr] = useState<ageArrObj[]>([])
+    /**
+     * Max Age Aray
+     */
     const [maxAgeArr, setMaxAgeArr] = useState<ageArrObj[]>([])
+    /**
+     * Store value of prospective audienceArr search 
+     */
+    const [search, setSearch] = useState<string>("");
+    const [searchLoader, setSearchLoader] = useState<boolean>(false)
+    const [audienceArr, setAudienceArr] = useState<any>([])
+    const [prospective, setProspective] = useState<any>([])
     useEffect(() => {
         /**
          * Make a age array
@@ -143,7 +159,6 @@ function CreateCamp(_props: DIProps) {
                     const { data: { audience } } = res
                     let tempArr: any = []
                     if (audience !== undefined) {
-                        console.log(audience)
                         Object.values(audience).forEach(element => {
                             let obj = {
                                 label: element,
@@ -186,6 +201,141 @@ function CreateCamp(_props: DIProps) {
             setCheckCircle('#027A48')
         }
     }
+
+    useEffect(() => {
+        /**
+         * In this useEffect add debounce functionality and make a popover content
+         */
+        if (search !== "") {
+            setSearchLoader(true)
+            const getData = setTimeout(() => {
+                GET(
+                    `${getAudience}?query=${search}&shop_id=${sessionStorage.getItem(
+                        `${user_id}_target_id`
+                    )}`
+                ).then((res) => {
+                    setSearchLoader(false);
+                    let tempArr: any = [];
+                    if (res.success) {
+                        res.data.forEach((ele: any) => {
+                            let obj = {
+                                id: Math.random() * 91919191919191,
+                                value: ele.name,
+                                lname: ele.type,
+                                label: ele.name,
+                                path: ele.path,
+                                popoverContent: (
+                                    <FlexLayout
+                                        direction="vertical"
+                                        spacing="tight"
+                                        halign="start">
+                                        <FlexLayout spacing="tight">
+                                            <TextStyles
+                                                type="Paragraph"
+                                                paragraphTypes="MD-1.4"
+                                                fontweight="bold">
+                                                Size:
+                                            </TextStyles>
+                                            <TextStyles
+                                                type="Paragraph"
+                                                paragraphTypes="MD-1.4">
+                                                {ele.audience_size_lower_bound} -{' '}
+                                                {ele.audience_size_upper_bound}
+                                            </TextStyles>
+                                        </FlexLayout>
+                                        <FlexLayout spacing="tight">
+                                            {ele.path.map(
+                                                (item: any, index: number) => (
+                                                    <TextStyles
+                                                        key={index}
+                                                        type="Paragraph"
+                                                        paragraphTypes="MD-1.4"
+                                                        fontweight={
+                                                            index === 0
+                                                                ? 'bold'
+                                                                : 'normal'
+                                                        }>{`${item}${index === ele.path.length - 1
+                                                            ? ''
+                                                            : '>'
+                                                            }`}</TextStyles>
+                                                )
+                                            )}
+                                        </FlexLayout>
+                                        <Alert
+                                            destroy
+                                            onClose={function noRefCheck() { }}
+                                            type="info">
+                                            The audience size for the selected interest
+                                            group is shown as a range.These numbers are
+                                            subject to change over time.
+                                        </Alert>
+                                    </FlexLayout>
+                                ),
+                            };
+                            tempArr.push(obj)
+                        });
+                        setAudienceArr(tempArr)
+                    }
+                });
+            }, 3000);
+            return () => clearInterval(getData);
+        }
+    }, [search])
+    /**
+     * 
+     * @param e string we choose from search suggestions
+     * @param id pass id for helping in which item we choose
+     */
+    const autoCompleteHanlder = (e: string, id: number) => {
+        if (prospective.length === 0) {
+            audienceArr.forEach((ele: any, index: number) => {
+                if (ele.label.toLowerCase() === e.toLowerCase() && ele.id === id) {
+                    let obj = {
+                        path: ele.path.slice(0, ele.path.length - 1),
+                        name: [e],
+                        id: ele.id
+                    }
+                    prospective.push(obj)
+                }
+            });
+
+        }
+        else if (prospective.length !== 0) {
+            audienceArr.forEach((ele: any, index: number) => {
+                if (ele.label.toLowerCase() === e.toLowerCase() && ele.id === id) {
+                    for (let i = 0; i < prospective.length; i++) {
+                        if ((JSON.stringify(ele.path.slice(0, ele.path.length - 1)) === JSON.stringify(prospective[i].path)
+                            && prospective[i].name.includes(e) === true)) {
+                            break;
+                        }
+                        else if (JSON.stringify(ele.path.slice(0, ele.path.length - 1)) === JSON.stringify(prospective[i].path)
+                            && prospective[i].name.includes(e) === false) {
+                            prospective[i].name = [...prospective[i].name, e]
+                            break;
+                        }
+                        else if (((JSON.stringify(ele.path.slice(0, ele.path.length - 1)) !== JSON.stringify(prospective[i].path)
+                            && prospective[i].name.includes(e) === true) || (
+                                JSON.stringify(ele.path.slice(0, ele.path.length - 1)) !== JSON.stringify(prospective[i].path)
+                                && prospective[i].name.includes(e) === false
+                            ))) {
+                            let path = ele.path.slice(0, ele.path.length - 1)
+                            let obj = {
+                                path: path,
+                                name: [ele.label],
+                                id: ele.id
+                            }
+                            prospective.push(obj)
+                            break;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            });
+            setProspective([...prospective])
+        }
+      
+    }
     return (
         <div>
             <PageHeader
@@ -195,6 +345,8 @@ function CreateCamp(_props: DIProps) {
                 sticky={false}
                 title="Setup Campaign "
             />
+
+
             <FlexLayout spacing="loose">
                 <FlexChild desktopWidth="75" tabWidth="75" mobileWidth="100">
                     <FormElement>
@@ -514,7 +666,6 @@ function CreateCamp(_props: DIProps) {
                                                                 placeholder="Ex- 18"
                                                                 name="Min Age"
                                                                 onChange={(e: string) => {
-                                                                    console.log(e)
                                                                     setState({
                                                                         ...state,
                                                                         minAge: e
@@ -541,7 +692,6 @@ function CreateCamp(_props: DIProps) {
                                                                 name="Max Age"
                                                                 placeholder="Ex- 65+"
                                                                 onChange={(e: string) => {
-                                                                    console.log(e)
                                                                     setState({
                                                                         ...state,
                                                                         maxAge: e
@@ -591,32 +741,101 @@ function CreateCamp(_props: DIProps) {
                                                                 value={gender}
                                                             />
                                                         </FlexChild>
-                                                    </FlexLayout>
-                                                    <Card cardType="Subdued">
-                                                        <FlexLayout
-                                                            spacing="extraTight"
-                                                            direction="vertical">
-                                                            <TextStyles
-                                                                type="Paragraph"
-                                                                paragraphTypes="MD-1.4">
-                                                                Search and
-                                                                Select Groups
-                                                            </TextStyles>
-                                                            <TextField
-                                                                innerPreIcon={
-                                                                    <Search
-                                                                        size={
-                                                                            18
+                                                        <FlexChild mobileWidth='100' tabWidth='100' desktopWidth='100'>
+                                                            <Card cardType="Subdued">
+                                                                <>
+                                                                    {prospective.length !== 0 ? <>
+                                                                        {prospective.map((val: any, index: number) => (
+                                                                            <FlexLayout spacing='loose' direction='vertical' key={val.id}>
+                                                                                <FlexLayout spacing="tight">
+                                                                                    {val.path.map(
+                                                                                        (item: any, index: number) => (
+                                                                                            <TextStyles
+                                                                                                key={index}
+                                                                                                type="Paragraph"
+                                                                                                paragraphTypes="MD-1.4"
+                                                                                                textcolor="light"
+                                                                                            >{`${item}  ${index === val.path.length - 1
+                                                                                                ? ''
+                                                                                                : '>'
+                                                                                                }`}</TextStyles>
+                                                                                        )
+                                                                                    )}
+                                                                                </FlexLayout>
+                                                                                <div className='customAlert'>
+                                                                                    <Alert
+                                                                                        destroy
+                                                                                        icon={false}
+                                                                                        onClose={() => {
+                                                                                            prospective.splice(index, 1)
+                                                                                            setProspective([...prospective])
+                                                                                        }}
+                                                                                        type="default"
+                                                                                    >
+                                                                                        <FlexLayout spacing='loose'>
+                                                                                            {val.name.map((item: any, index: number) => (
+                                                                                                <Tag key={index} destroy={() => {
+                                                                                                    if (val.name.length > 1) {
+                                                                                                        val.name.splice(index, 1);
+                                                                                                        setProspective([...prospective])
+                                                                                                    } else {
+                                                                                                        prospective.splice(index, 1)
+                                                                                                        setProspective([...prospective])
+                                                                                                    }
+
+
+                                                                                                }}>
+                                                                                                    {item}
+                                                                                                </Tag>
+                                                                                            ))}
+
+                                                                                        </FlexLayout>
+                                                                                    </Alert>
+                                                                                </div>
+                                                                                <br></br>
+                                                                            </FlexLayout>
+                                                                        ))}
+                                                                    </> : null}
+                                                                    <AutoComplete
+                                                                        clearFunction={() => {
+                                                                            setSearch("")
+                                                                        }}
+                                                                        clearButton
+                                                                        loading={searchLoader}
+                                                                        onChange={(e: string) => {
+                                                                            setSearch(e)
+                                                                        }}
+                                                                        onClick={(e: string, id: number) => {
+                                                                            autoCompleteHanlder(e, id)
+                                                                        }}
+                                                                        options={
+                                                                            audienceArr.length !==
+                                                                                0
+                                                                                ? audienceArr
+                                                                                : []
+                                                                        }
+                                                                        placeHolder="Search for demographics, interests, behaviors, etc."
+                                                                        popoverContainer="body"
+                                                                        popoverPosition="right"
+                                                                        showPopover={
+                                                                            true
+                                                                        }
+                                                                        setHiglighted
+                                                                        value={
+                                                                            search
                                                                         }
                                                                     />
-                                                                }
-                                                                onChange={function noRefCheck() { }}
-                                                                placeHolder=" Search for demographics, interests, behaviors, etc."
-                                                                type="text"
-                                                                value=""
-                                                            />
-                                                        </FlexLayout>
-                                                    </Card>
+                                                                </>
+                                                            </Card>
+                                                        </FlexChild>
+                                                    </FlexLayout>
+
+                                                    <hr></hr>
+                                                    <CheckBox
+                                                        id="one"
+                                                        labelVal="Reach people apart from your detailed targeting selections when it's expected to improve performance."
+                                                        onClick={function noRefCheck() { }}
+                                                    />
                                                 </FormElement>
                                             </Card>
                                         ) : target === 'Retarget' ? (
@@ -736,6 +955,33 @@ function CreateCamp(_props: DIProps) {
                             </FlexLayout>
                         </Card>
                     </FormElement>
+                </FlexChild>
+                <FlexChild desktopWidth='25' tabWidth='25' mobileWidth='100' >
+                    <>
+                        <Card title={"Preview"} subTitle={"This is how your Ad will appear"}>
+                            <Tabs
+                                alignment="horizontal"
+                                onChange={function noRefCheck() { }}
+                                selected="Facebook"
+                                value={[
+                                    {
+                                        content: 'Facebook',
+                                        id: 'Facebook'
+                                    },
+                                    {
+                                        content: 'Instagram',
+                                        id: 'Instagram'
+                                    },
+                                ]}
+                            >
+                                <Card title="Card Heading">
+                                    <h1>
+                                        Pending
+                                    </h1>
+                                </Card>
+                            </Tabs>
+                        </Card>
+                    </>
                 </FlexChild>
             </FlexLayout>
         </div>
