@@ -15,7 +15,10 @@ import {
     CheckBox,
     AutoComplete,
     Tabs,
-    Tag
+    Tag,
+    Carousel,
+    Avatar,
+    Button
 } from '@cedcommerce/ounce-ui';
 import { DI, DIProps } from "../../../../src/Core"
 import moment from 'moment'
@@ -48,9 +51,11 @@ interface ageArrObj {
     value: string;
 }
 interface initResObj {
+    account_name: string;
     instaConnected: boolean;
     productsCount: number;
-    audience: any[]
+    audience: any[];
+    products_preview: any[]
 }
 function CreateCamp(_props: DIProps) {
     /**
@@ -85,9 +90,11 @@ function CreateCamp(_props: DIProps) {
      * State For Holding Inti Api Response
      */
     const [initRes, setInitRes] = useState<initResObj>({
+        account_name: "",
         instaConnected: false,
         productsCount: 0,
-        audience: []
+        audience: [],
+        products_preview: []
     })
     const [checkCircle, setCheckCircle] = useState<string>("#1c2433")
     const regexOnlyStr = /^[A-Z]+$/i;
@@ -95,7 +102,7 @@ function CreateCamp(_props: DIProps) {
     const { get: { initCampaignUrl, getAudience } } = urlFetchCalls
     const { name, startDate, endDate, dailyBudget, adText, minAge, maxAge, gender, insta, facebook, selectAudience } = state
     const { nameErr, dailyErr, adTextErr } = error
-    const { instaConnected, productsCount, audience } = initRes
+    const { account_name, instaConnected, productsCount, audience, products_preview } = initRes
     /**
      * Min Age Array
      */
@@ -156,6 +163,7 @@ function CreateCamp(_props: DIProps) {
         GET(initCampaignUrl, { shop_id: sessionStorage.getItem(`${user_id}_target_id`) })
             .then((res) => {
                 if (res.success === true) {
+                    console.log(res)
                     const { data: { audience } } = res
                     let tempArr: any = []
                     if (audience !== undefined) {
@@ -168,9 +176,11 @@ function CreateCamp(_props: DIProps) {
                         });
                     }
                     setInitRes({
+                        account_name: res.data.account_name,
                         instaConnected: res.data.is_instagram_connected,
                         productsCount: res.data.products_count,
-                        audience: tempArr
+                        audience: tempArr,
+                        products_preview: res.data.products_preview
                     })
                 }
             })
@@ -201,7 +211,7 @@ function CreateCamp(_props: DIProps) {
             setCheckCircle('#027A48')
         }
     }
-
+    console.log("PRODUCT PREVIEW", products_preview)
     useEffect(() => {
         /**
          * In this useEffect add debounce functionality and make a popover content
@@ -334,7 +344,7 @@ function CreateCamp(_props: DIProps) {
             });
             setProspective([...prospective])
         }
-      
+
     }
     return (
         <div>
@@ -348,7 +358,7 @@ function CreateCamp(_props: DIProps) {
 
 
             <FlexLayout spacing="loose">
-                <FlexChild desktopWidth="75" tabWidth="75" mobileWidth="100">
+                <FlexChild desktopWidth="66" tabWidth="66" mobileWidth="100">
                     <FormElement>
                         <Card
                             cardType="Shadowed"
@@ -956,28 +966,70 @@ function CreateCamp(_props: DIProps) {
                         </Card>
                     </FormElement>
                 </FlexChild>
-                <FlexChild desktopWidth='25' tabWidth='25' mobileWidth='100' >
+                <FlexChild desktopWidth='33' tabWidth='33' mobileWidth='100' >
                     <>
                         <Card title={"Preview"} subTitle={"This is how your Ad will appear"}>
                             <Tabs
                                 alignment="horizontal"
                                 onChange={function noRefCheck() { }}
                                 selected="Facebook"
-                                value={[
-                                    {
-                                        content: 'Facebook',
-                                        id: 'Facebook'
-                                    },
-                                    {
-                                        content: 'Instagram',
-                                        id: 'Instagram'
-                                    },
-                                ]}
+                                value={instaConnected === true ?
+                                    [
+                                        {
+                                            content: 'Facebook',
+                                            id: 'Facebook'
+                                        },
+                                        {
+                                            content: 'Instagram',
+                                            id: 'Instagram'
+                                        },
+                                    ] : [
+                                        {
+                                            content: 'Facebook',
+                                            id: 'Facebook'
+                                        },
+                                    ]}
                             >
-                                <Card title="Card Heading">
-                                    <h1>
-                                        Pending
-                                    </h1>
+                                <Card>
+                                    <FlexLayout spacing='extraTight' direction='vertical'>
+                                        <FlexLayout wrap='noWrap' halign='fill' spacing='tight' valign='center'>
+                                            <Avatar
+                                                color="purple"
+                                                image=""
+                                                size="large"
+                                                text={account_name}
+                                                type="circle"
+                                            />
+                                            <TextStyles fontweight='bold'>
+                                            {account_name}
+                                            </TextStyles>
+                                        </FlexLayout>
+                                                {adText}
+                                        <TextStyles></TextStyles>
+                                    </FlexLayout>
+                                    <br></br>
+                                    <Carousel
+                                        arrowalign="bottomCenter"
+                                        autoplay
+                                        infinite
+                                        slidesToScroll={1}
+                                        slidesToShow={1}
+                                        autoplaySpeed={1000}
+                                    >
+                                        {products_preview.map((val: any, index: number) => (
+                                            <Card key={index}
+                                                cardType="Bordered"
+                                                media={val.main_image}
+                                            >
+                                                <FlexLayout spacing='tight' direction='vertical'>
+                                                    <TextStyles fontweight='bold'>{val.title}</TextStyles>
+                                                    <TextStyles>${val.price}</TextStyles>
+                                                    <Button type='Outlined'>Shop Now</Button>
+                                                </FlexLayout>
+                                            </Card>
+                                        ))}
+
+                                    </Carousel>
                                 </Card>
                             </Tabs>
                         </Card>
