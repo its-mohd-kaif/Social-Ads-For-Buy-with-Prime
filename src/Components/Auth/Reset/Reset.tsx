@@ -132,36 +132,31 @@ function Reset(_props: DIProps) {
                     /**
                      * password validation check
                      */
-                    if (e === "") {
+                    if (strenght === 100 && confirmPassword === e) {
                         setErrorMess({
                             ...errorMess,
-                            newPassError: true
-                        })
-                    } else if (strenght !== 100) {
-                        setErrorMess({
-                            ...errorMess,
-                            saveBtn: true
+                            newPassError: false,
+                            conPassError: false,
+                            saveBtn: false,
+                            message: ""
                         })
                     } else if (confirmPassword !== "") {
                         if (confirmPassword !== e) {
                             setErrorMess({
                                 ...errorMess,
+                                newPassError: false,
                                 conPassError: true,
                                 saveBtn: true,
                                 message: "Passwords do not match!"
                             })
-                        } else {
-                            setErrorMess({
-                                ...errorMess,
-                                conPassError: false,
-                                saveBtn: false,
-                                message: ""
-                            })
                         }
-                    } else {
+                    }
+                }}
+                onblur={() => {
+                    if (newPassword === "") {
                         setErrorMess({
                             ...errorMess,
-                            newPassError: false,
+                            newPassError: true
                         })
                     }
                 }}
