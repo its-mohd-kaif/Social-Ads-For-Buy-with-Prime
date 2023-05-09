@@ -6,7 +6,6 @@ import Accounts from './Accounts'
 import Password from './Password'
 function SettingsComp(_props: DIProps) {
     const [select, setSelect] = useState("accounts")
-
     return (
         <div>
             <PageHeader
