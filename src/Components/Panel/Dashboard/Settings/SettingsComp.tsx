@@ -1,18 +1,12 @@
-import {PageHeader, Tabs} from '@cedcommerce/ounce-ui'
-import React, { useEffect, useState } from 'react'
+import { PageHeader, Tabs } from '@cedcommerce/ounce-ui'
+import React, { useState } from 'react'
 import { Key, User, Settings, Lock } from 'react-feather'
 import { DI, DIProps } from "../../../../../src/Core"
-import { urlFetchCalls } from '../../../../../src/Constant'
 import Accounts from './Accounts'
 import Password from './Password'
 function SettingsComp(_props: DIProps) {
     const [select, setSelect] = useState("accounts")
-    const { di: { GET } } = _props;
-    const { get: { getPixelsUrl } } = urlFetchCalls;
-    useEffect(() => {
-        GET(`${getPixelsUrl}?shop_id=1192`)
-            .then((res) => console.log(res))
-    }, [])
+
     return (
         <div>
             <PageHeader
