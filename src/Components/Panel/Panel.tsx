@@ -24,13 +24,11 @@ function Panel(_props: PropsInfo) {
    * in this useEffect we dispatch actions
    */
   useEffect(() => {
-
     async function getAsyncCall() {
       await _props.syncConnectorInfo(_props);
       await _props.syncNecessaryInfo()
       setFlag(true);
     };
-
     // You need to restrict it at some point
     if (!flag) {
       getAsyncCall();
@@ -41,6 +39,7 @@ function Panel(_props: PropsInfo) {
         user_id: _props.match.uId
       }
     })
+
   }, [])
 
 
