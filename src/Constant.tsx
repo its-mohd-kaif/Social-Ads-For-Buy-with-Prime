@@ -90,3 +90,5 @@ export const subject = {
     passwordReset: 'Reset your password for React-Boiler Plate',
     otpMailSend: 'Your One-time passcode for Email verification',
 };
+
+

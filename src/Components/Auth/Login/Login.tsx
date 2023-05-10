@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { DI, DIProps, parseJwt } from '../../../Core';
-import { loginStatus} from '../../../Actions';
+import { loginStatus } from '../../../Actions';
 import * as queryString from 'query-string';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { StoreDispatcher } from '../../..';
@@ -178,6 +178,7 @@ function Login(_props: PropsI): JSX.Element {
         })
             .catch((mess) => console.log(mess))
     }
+
     return (
         <>
             <FormElement>
@@ -295,3 +296,4 @@ function Login(_props: PropsI): JSX.Element {
 }
 
 export default DI(Login, { func: { loginStatus } });
+
