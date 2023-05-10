@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import { Key, User, Settings, Lock } from 'react-feather'
 import { DI, DIProps } from "../../../../../src/Core"
 import Accounts from './Accounts'
+import General from './General'
 import Password from './Password'
 function SettingsComp(_props: DIProps) {
     const [select, setSelect] = useState("accounts")
@@ -43,7 +44,7 @@ function SettingsComp(_props: DIProps) {
             >
                 {select === "accounts" ? <Accounts /> :
                     select === "password" ? <Password /> :
-                        select === "general-details" ? <>General</> :
+                        select === "general-details" ? <General /> :
                             select === "privacy-settings" ? <>Provacy</>
                                 : null}
             </Tabs>

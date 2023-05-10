@@ -150,6 +150,11 @@ function Reset(_props: DIProps) {
                                 message: "Passwords do not match!"
                             })
                         }
+                    } else {
+                        setErrorMess({
+                            ...errorMess,
+                            newPassError: false
+                        })
                     }
                 }}
                 onblur={() => {
