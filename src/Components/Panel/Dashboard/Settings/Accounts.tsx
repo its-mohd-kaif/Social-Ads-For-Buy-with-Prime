@@ -46,6 +46,10 @@ function Accounts(_props: PropsInfo) {
      */
     const [modal, setModal] = useState<boolean>(false)
     /**
+     * for update modal
+     */
+    const [updateModal, setUpdateModal] = useState<boolean>(false)
+    /**
      * for select pixel id
      */
     const [select, setSelect] = useState<string>("")
@@ -86,7 +90,7 @@ function Accounts(_props: PropsInfo) {
         }
     }, [_props.redux.account])
     const updateHandler = () => {
-        alert("update")
+        setUpdateModal(true)
     }
     /**
      * Edit Handler
@@ -310,6 +314,36 @@ function Accounts(_props: PropsInfo) {
                             value={select}
                         />
                     </FormElement>
+                </FlexLayout>
+            </Modal>
+            <Modal
+                close={() => {
+                    setUpdateModal(!updateModal)
+                }}
+                heading="Update Facebook Account Settings"
+                modalSize="small"
+                primaryAction={{
+                    content: 'Continue',
+                    loading: false,
+                    onClick: function noRefCheck() { }
+                }}
+                secondaryAction={{
+                    content: 'Cancel',
+                    loading: false,
+                    onClick: () => {
+                        setUpdateModal(!updateModal)
+                    }
+                }} open={updateModal}>
+                <FlexLayout direction='vertical' spacing='mediumLoose'>
+                    <TextStyles>
+                        Your Facebook account <span style={{ fontWeight: "bold" }}>{name}</span> is currently connected to the Social Ads for
+                        Buy with Prime account. Use the same Facebook account, Business Manager <span style={{ fontWeight: "bold" }}>Lakhan Store</span>,
+                        and Facebook Ads account <span style={{ fontWeight: "bold" }}>{ad}</span>
+                    </TextStyles>
+                    <TextStyles>
+                        If any of the conditions do not meet. Your accounts’ catalogs get deleted on ads manager.
+                        Existing campaigns will be deleted on the ads manager and get disconnected in the app.
+                    </TextStyles>
                 </FlexLayout>
             </Modal>
         </div>
