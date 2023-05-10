@@ -1,4 +1,4 @@
-import { Avatar, Button, FlexChild, FlexLayout, NewSidebar, Popover, TextStyles, Topbar } from '@cedcommerce/ounce-ui'
+import { Avatar, Button, FlexChild, FlexLayout, Popover, TextStyles, Topbar } from '@cedcommerce/ounce-ui'
 import React, { useState } from 'react'
 import { Bell } from "react-feather";
 
@@ -7,7 +7,6 @@ function TopbarComp() {
     const [flag, setFlag] = useState<boolean>(false);
     return (
         <>
-
             <Topbar
                 connectRight={<FlexLayout spacing="loose">
                     <Popover

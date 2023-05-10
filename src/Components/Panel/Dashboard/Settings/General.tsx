@@ -1,4 +1,4 @@
-import { Button, Card, FlexChild, FlexLayout, Modal, TextField, TextStyles } from '@cedcommerce/ounce-ui'
+import { Button, Card, FlexChild, FlexLayout, Modal, Skeleton, TextField, TextStyles } from '@cedcommerce/ounce-ui'
 import React, { useEffect, useState } from 'react'
 import { Edit } from 'react-feather'
 import { urlFetchCalls } from '../../../../../src/Constant'
@@ -20,6 +20,7 @@ function General(_props: DIProps) {
     const [newStore, setNewStore] = useState<string>("");
     const [error, setError] = useState<boolean>(false);
     const [loader, setLoader] = useState<boolean>(false);
+    const [skeleton, setSkeleton] = useState<boolean>(true);
     const { url, email } = state;
     /**
      * in this useEffect we get website url from init call
@@ -29,30 +30,33 @@ function General(_props: DIProps) {
     useEffect(() => {
         GET(initCampaignUrl, { shop_id: sessionStorage.getItem(`${user_id}_target_id`) })
             .then((res) => {
-                setState({
-                    ...state,
-                    url: res.data.website_url,
-                    email: _props.redux.current.source.email
-                })
+                if (res.success === true) {
+                    setState({
+                        ...state,
+                        url: res.data.website_url,
+                        email: _props.redux.current.source.email
+                    })
+                    POST(getConfigUrl, {
+                        "target_marketplace": sessionStorage.getItem(`${user_id}_auth_token`),
+                        "source": {
+                            "shopId": sessionStorage.getItem(`${user_id}_source_id`),
+                            "marketplace": sessionStorage.getItem(`${user_id}_source_name`)
+                        },
+                        "key": [
+                            "brand"
+                        ],
+                        "group_code": [
+                            "bwp-product"
+                        ]
+                    }).then((res) => {
+                        setSkeleton(false)
+                        setBrand(res.data[0].value.brand);
+                        setNewStore(
+                            res.data[0].value.brand
+                        );
+                    })
+                }
             })
-        POST(getConfigUrl, {
-            "target_marketplace": sessionStorage.getItem(`${user_id}_auth_token`),
-            "source": {
-                "shopId": sessionStorage.getItem(`${user_id}_source_id`),
-                "marketplace": sessionStorage.getItem(`${user_id}_source_name`)
-            },
-            "key": [
-                "brand"
-            ],
-            "group_code": [
-                "bwp-product"
-            ]
-        }).then((res) => {
-            setBrand(res.data[0].value.brand);
-            setNewStore(
-                res.data[0].value.brand
-            );
-        })
     }, [])
     /**
      * for open modal
@@ -97,20 +101,41 @@ function General(_props: DIProps) {
                     <FlexChild>
                         <FlexLayout direction='vertical'>
                             <TextStyles>Store URL</TextStyles>
-                            <TextStyles textcolor='light'>{url}</TextStyles>
+                            {skeleton === false ?
+                                <TextStyles textcolor='light'>{url}</TextStyles>
+                                : <Skeleton
+                                    height="20px"
+                                    line={1}
+                                    type="custom"
+                                    width="245px"
+                                />}
                         </FlexLayout>
                     </FlexChild>
                     <FlexChild>
                         <FlexLayout direction='vertical'>
                             <TextStyles>Email</TextStyles>
-                            <TextStyles textcolor='light'>{email}</TextStyles>
+                            {skeleton === false ?
+                                <TextStyles textcolor='light'>{email}</TextStyles>
+                                : <Skeleton
+                                    height="20px"
+                                    line={1}
+                                    type="custom"
+                                    width="225px"
+                                />}
                         </FlexLayout>
                     </FlexChild>
                     <FlexChild>
                         <FlexLayout halign='fill'>
                             <FlexLayout direction='vertical'>
                                 <TextStyles>Store / Brand Name</TextStyles>
-                                <TextStyles textcolor='light'>{brand}</TextStyles>
+                                {skeleton === false ?
+                                    <TextStyles textcolor='light'>{brand}</TextStyles>
+                                    : <Skeleton
+                                        height="20px"
+                                        line={1}
+                                        type="custom"
+                                        width="125px"
+                                    />}
                             </FlexLayout>
                             <FlexChild>
                                 <Button onClick={editHandler} icon={<Edit size={"17"} />} type='Outlined'>Edit</Button>

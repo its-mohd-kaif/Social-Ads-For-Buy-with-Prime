@@ -7,7 +7,6 @@ import ProductsStatus, { closeFilterHandler, FilterTagComp, myFilterHandler, Pro
 
 import productFallBackImg from "../../../../Asests/Images/png/productFallBack.png"
 interface paginationObj {
-    totalProducts: number
     activePage: number
     countPerPage: number
     start: number
@@ -18,7 +17,6 @@ function Products(_props: DIProps) {
     const [loader, setLoader] = useState<boolean>(true)
     const [data, setData] = useState<any>([]);
     const [pagination, setPagination] = useState<paginationObj>({
-        totalProducts: 0,
         activePage: 1,
         countPerPage: 5,
         start: 0,
@@ -60,7 +58,7 @@ function Products(_props: DIProps) {
 
     const [gridLoader, setGridLoader] = useState<boolean>(false)
 
-    const { activePage, countPerPage, totalProducts, start, end } = pagination
+    const { activePage, countPerPage, start, end } = pagination
     useEffect(() => {
         setGridLoader(true)
         GET(`${getRefineProductsUrl}?is_only_parent_allow=false&filter[items.buyability][1]=BUYABLE&activePage=1&count=5`)
