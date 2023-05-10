@@ -609,7 +609,7 @@ function CreateCamp(_props: DIProps) {
                                     <FlexLayout spacing="tight" halign="start">
                                         <CheckCircle
                                             size="24"
-                                            color="#70747E"
+                                            color={target === "" ? "#70747E" : "#027A48"}
                                         />
                                         <FlexLayout
                                             spacing="extraTight"
@@ -1001,10 +1001,10 @@ function CreateCamp(_props: DIProps) {
                                                 type="circle"
                                             />
                                             <TextStyles fontweight='bold'>
-                                            {account_name}
+                                                {account_name}
                                             </TextStyles>
                                         </FlexLayout>
-                                                {adText}
+                                        {adText}
                                         <TextStyles></TextStyles>
                                     </FlexLayout>
                                     <br></br>
