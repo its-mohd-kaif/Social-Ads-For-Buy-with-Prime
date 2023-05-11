@@ -13,6 +13,7 @@ import LoaderComp from './Dashboard/LoaderComp';
 import CreateCamp from './Dashboard/CreateCamp';
 import Products from './Dashboard/Products/Products';
 import SettingsComp from './Dashboard/Settings/SettingsComp';
+import NotificationComp from './Dashboard/Notification/NotificationComp';
 interface PropsInfo extends DIProps {
   syncConnectorInfo: any;
   syncNecessaryInfo: () => void;
@@ -75,10 +76,11 @@ function Panel(_props: PropsInfo) {
             <Routes>
               <Route path='dashboard' element={<Dashboard />} />
               <Route path='product' element={<Products />} />
-              <Route path='settings' element={<><SettingsComp/></>} />
+              <Route path='settings' element={<><SettingsComp /></>} />
               <Route path='help' element={<>help</>} />
               <Route path='faq' element={<>faq</>} />
               <Route path='create' element={<CreateCamp />} />
+              <Route path='notifications' element={<NotificationComp />} />
             </Routes>
           </BodyLayout>
           <Footer />

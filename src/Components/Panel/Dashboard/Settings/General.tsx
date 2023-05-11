@@ -22,7 +22,7 @@ function General(_props: DIProps) {
     const [loader, setLoader] = useState<boolean>(false);
     const [skeleton, setSkeleton] = useState<boolean>(true);
     const { url, email } = state;
-    /**
+    /** 
      * in this useEffect we get website url from init call
      * email from redux state
      * brand name from getConfigUrl call
