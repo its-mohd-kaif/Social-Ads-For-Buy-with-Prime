@@ -1,6 +1,7 @@
 import { Card, FormElement, TextField, TextStyles, List, Button, FlexLayout } from '@cedcommerce/ounce-ui'
 import React, { useEffect, useState } from 'react'
 import { Eye, EyeOff } from 'react-feather';
+import { urlFetchCalls } from '../../../../../src/Constant';
 import { PasswordStrenght } from '../../../../../src/Components/Auth/function';
 import { DI, DIProps } from "../../../../../src/Core"
 interface stateObj {
@@ -14,6 +15,7 @@ interface stateObj {
 interface errorMessObj {
     currPassError: boolean;
     newPassError: boolean;
+    newPassMess: string;
     conPassError: boolean;
     message: string;
     saveBtn: boolean;
@@ -36,12 +38,101 @@ function Password(_props: DIProps) {
     const [errorMess, setErrorMess] = useState<errorMessObj>({
         currPassError: false,
         newPassError: false,
+        newPassMess: "",
         conPassError: false,
         message: "",
         saveBtn: true
     })
     const { currentPassword, newPassword, loading, confirmPassword, eyeoff1, eyeoff2 } = state;
-    const { currPassError, newPassError, conPassError, message, saveBtn } = errorMess;
+    const { currPassError, newPassError, newPassMess, conPassError, message, saveBtn } = errorMess;
+    const { di: { POST }, redux } = _props;
+    const { post: { resetPassword } } = urlFetchCalls
+
+    const commonValidation = (currPass: string, newPass: string, confPass: string) => {
+        if (newPass !== confPass && newPass !== "" && confPass !== "") {
+            if (currPass !== newPass && currPass !== "") {
+                setErrorMess({
+                    ...errorMess,
+                    newPassMess: "",
+                    newPassError: false,
+                    conPassError: true,
+                    saveBtn: true,
+                    message: "Passwords do not match!",
+                })
+            } else {
+                setErrorMess({
+                    ...errorMess,
+                    conPassError: true,
+                    saveBtn: true,
+                    message: "Passwords do not match!",
+                })
+            }
+
+        } else if (newPass === currPass && newPass !== "" && currPass !== "") {
+            if (newPass === confPass && confPass !== "") {
+                setErrorMess({
+                    ...errorMess,
+                    conPassError: false,
+                    message: "",
+                    saveBtn: true,
+                    newPassError: true,
+                    newPassMess: "Your new password cannot be the same as your current password.",
+                })
+            } else {
+                setErrorMess({
+                    ...errorMess,
+                    saveBtn: true,
+                    newPassError: true,
+                    newPassMess: "Your new password cannot be the same as your current password.",
+                })
+            }
+
+        } else {
+            setErrorMess({
+                saveBtn: true,
+                currPassError: false,
+                conPassError: false,
+                newPassError: false,
+                message: "",
+                newPassMess: ""
+            })
+        }
+    }
+
+    const checkValidation = (currPass: string, newPass: string, confPass: string) => {
+        let strenght = PasswordStrenght(newPass);
+        if (strenght === 100) {
+            if (newPass === confPass && confPass !== "" && currPass !== newPass) {
+                setErrorMess({
+                    saveBtn: false,
+                    currPassError: false,
+                    conPassError: false,
+                    newPassError: false,
+                    message: "",
+                    newPassMess: ""
+                })
+            }
+            else {
+                commonValidation(currPass, newPass, confPass);
+            }
+        } else {
+            commonValidation(currPass, newPass, confPass);
+        }
+    }
+    const saveBtnHandler = () => {
+        POST(resetPassword, {
+            email: redux.current.source.email,
+            old_password: currentPassword,
+            new_password: newPassword,
+            confirm_password: confirmPassword
+        }).then((res) => {
+            if (res.success === true) {
+                _props.success(res.message);
+            } else if (res.success === false) {
+                _props.error(res.message)
+            }
+        })
+    }
     return (
         <div>
             <Card title={"Password Reset"}>
@@ -57,16 +148,22 @@ function Password(_props: DIProps) {
                                 ...state,
                                 currentPassword: e
                             })
-                            setErrorMess({
-                                ...errorMess,
-                                currPassError: false
-                            })
+                            if (e === "") {
+                                setErrorMess({
+                                    ...errorMess,
+                                    currPassError: true,
+                                    saveBtn: true
+                                })
+                            } else {
+                                checkValidation(e, newPassword, confirmPassword)
+                            }
                         }}
                         onblur={() => {
                             if (currentPassword === "") {
                                 setErrorMess({
                                     ...errorMess,
-                                    currPassError: true
+                                    currPassError: true,
+                                    saveBtn: true
                                 })
                             }
                         }}
@@ -102,8 +199,8 @@ function Password(_props: DIProps) {
                         error={newPassError}
                         placeHolder={'Enter New Password'}
                         value={newPassword}
+                        showHelp={newPassMess}
                         onChange={(e) => {
-                            let strenght = PasswordStrenght(e);
                             /**
                              * store a value into state
                              */
@@ -111,32 +208,14 @@ function Password(_props: DIProps) {
                                 ...state,
                                 newPassword: e
                             })
-                            /**
-                             * password validation check
-                             */
-                            if (strenght === 100 && confirmPassword === e) {
+                            if (e === "") {
                                 setErrorMess({
                                     ...errorMess,
-                                    newPassError: false,
-                                    conPassError: false,
-                                    saveBtn: false,
-                                    message: ""
+                                    newPassError: true,
+                                    saveBtn: true
                                 })
-                            } else if (confirmPassword !== "") {
-                                if (confirmPassword !== e) {
-                                    setErrorMess({
-                                        ...errorMess,
-                                        newPassError: false,
-                                        conPassError: true,
-                                        saveBtn: true,
-                                        message: "Passwords do not match!"
-                                    })
-                                }
                             } else {
-                                setErrorMess({
-                                    ...errorMess,
-                                    newPassError: false
-                                })
+                                checkValidation(currentPassword, e, confirmPassword)
                             }
                         }}
                         onblur={() => {
@@ -144,6 +223,12 @@ function Password(_props: DIProps) {
                                 setErrorMess({
                                     ...errorMess,
                                     newPassError: true
+                                })
+                            } else if (newPassword === currentPassword) {
+                                setErrorMess({
+                                    ...errorMess,
+                                    newPassError: true,
+                                    newPassMess: "Your new password cannot be the same as your current password."
                                 })
                             }
                         }}
@@ -215,23 +300,14 @@ function Password(_props: DIProps) {
                                 ...state,
                                 confirmPassword: e
                             })
-                            /**
-                             * match password validation
-                             */
-                            if (newPassword !== e) {
+                            if (e === "") {
                                 setErrorMess({
                                     ...errorMess,
                                     conPassError: true,
-                                    saveBtn: true,
-                                    message: "Passwords do not match!"
+                                    saveBtn: true
                                 })
                             } else {
-                                setErrorMess({
-                                    ...errorMess,
-                                    conPassError: false,
-                                    saveBtn: false,
-                                    message: ""
-                                })
+                                checkValidation(currentPassword, newPassword, e)
                             }
                         }}
                     />
@@ -241,7 +317,7 @@ function Password(_props: DIProps) {
                             content="Save New Password"
                             thickness='large'
                             disable={saveBtn}
-                            // onClick={saveBtnHandler}
+                            onClick={saveBtnHandler}
                             loading={loading}
                         />
                     </FlexLayout>
