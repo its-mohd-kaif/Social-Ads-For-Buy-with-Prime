@@ -14,6 +14,7 @@ import CreateCamp from './Dashboard/CreateCamp';
 import Products from './Dashboard/Products/Products';
 import SettingsComp from './Dashboard/Settings/SettingsComp';
 import NotificationComp from './Dashboard/Notification/NotificationComp';
+import HelpComp from './Dashboard/Help/HelpComp';
 interface PropsInfo extends DIProps {
   syncConnectorInfo: any;
   syncNecessaryInfo: () => void;
@@ -77,7 +78,7 @@ function Panel(_props: PropsInfo) {
               <Route path='dashboard' element={<Dashboard />} />
               <Route path='product' element={<Products />} />
               <Route path='settings' element={<><SettingsComp /></>} />
-              <Route path='help' element={<>help</>} />
+              <Route path='help' element={<HelpComp />} />
               <Route path='faq' element={<>faq</>} />
               <Route path='create' element={<CreateCamp />} />
               <Route path='notifications' element={<NotificationComp />} />
