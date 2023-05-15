@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { DI, DIProps } from "../../../../../src/Core"
 import { urlFetchCalls } from '../../../../../src/Constant'
 import { PlusCircle } from 'react-feather';
+import FAQFallback from '../../../../../src/Components/Panel/Dashboard/Fallback/FAQFallback';
 function FAQ(_props: DIProps) {
     const { di: { POST } } = _props;
     const { get: { faqSearch } } = urlFetchCalls;
@@ -177,61 +178,62 @@ function FAQ(_props: DIProps) {
                             ))
                         }
                     </FlexLayout> :
-                    searchSelect.label !== undefined ?
-                        <FlexLayout spacing='extraLoose' direction='vertical'>
-                            <FlexLayout valign='center' spacing='tight'>
-                                <TextStyles fontweight='extraBold' headingTypes='LG-2.8'>
-                                    Search result for:
-                                </TextStyles>
-                                <Tag destroy={() => {
-                                    setSearch("")
-                                    setSearchSelect([])
-                                }}>
-                                    {searchSelect.label}
-                                </Tag>
-                            </FlexLayout>
-                            <Card>
-                                <Accordion
-                                    boxed
-                                    icon
-                                    iconAlign="left"
-                                    onClick={() => setSearchAccordian(!searchAccordian)}
-                                    title={searchSelect.label}
-                                    active={searchAccordian}
-                                >
-                                    <div dangerouslySetInnerHTML={{ __html: searchSelect.answer }}></div>
-                                </Accordion>
-                            </Card>
+                    data.length === 0 ? <FAQFallback /> :
+                        searchSelect.label !== undefined ?
+                            <FlexLayout spacing='extraLoose' direction='vertical'>
+                                <FlexLayout valign='center' spacing='tight'>
+                                    <TextStyles fontweight='extraBold' headingTypes='LG-2.8'>
+                                        Search result for:
+                                    </TextStyles>
+                                    <Tag destroy={() => {
+                                        setSearch("")
+                                        setSearchSelect([])
+                                    }}>
+                                        {searchSelect.label}
+                                    </Tag>
+                                </FlexLayout>
+                                <Card>
+                                    <Accordion
+                                        boxed
+                                        icon
+                                        iconAlign="left"
+                                        onClick={() => setSearchAccordian(!searchAccordian)}
+                                        title={searchSelect.label}
+                                        active={searchAccordian}
+                                    >
+                                        <div dangerouslySetInnerHTML={{ __html: searchSelect.answer }}></div>
+                                    </Accordion>
+                                </Card>
 
-                        </FlexLayout> :
-                        data.map((val: any, index: number) => (
-                            <>
-                                {val.next_page !== null || val.data.length !== 0 ?
-                                    <Card title={val.group_name}>
-                                        {val.data.map((item: any, index: number) => (
-                                            <>
-                                                <Accordion
-                                                    boxed
-                                                    icon
-                                                    iconAlign="left"
-                                                    onClick={() => accordianHandler(item._id)}
-                                                    title={item.title}
-                                                    active={item.open}
-                                                >
-                                                    <div dangerouslySetInnerHTML={{ __html: item.answer }}></div>
-                                                </Accordion>
-                                            </>
-                                        ))}
-                                        <br></br>
-                                        {
-                                            val.next_page !== null ? <FlexLayout halign='center'>
-                                                <Button disable={btnLoader} onClick={() => showMoreHandler(val.next_page, val.group_name.toLowerCase(),)} icon={<PlusCircle size={18} />} type='Outlined'>Show more</Button>
-                                            </FlexLayout> : null
-                                        }
-                                    </Card> : null
-                                }
-                            </>
-                        ))}
+                            </FlexLayout> :
+                            data.map((val: any, index: number) => (
+                                <>
+                                    {val.next_page !== null || val.data.length !== 0 ?
+                                        <Card title={val.group_name}>
+                                            {val.data.map((item: any, index: number) => (
+                                                <>
+                                                    <Accordion
+                                                        boxed
+                                                        icon
+                                                        iconAlign="left"
+                                                        onClick={() => accordianHandler(item._id)}
+                                                        title={item.title}
+                                                        active={item.open}
+                                                    >
+                                                        <div dangerouslySetInnerHTML={{ __html: item.answer }}></div>
+                                                    </Accordion>
+                                                </>
+                                            ))}
+                                            <br></br>
+                                            {
+                                                val.next_page !== null ? <FlexLayout halign='center'>
+                                                    <Button disable={btnLoader} onClick={() => showMoreHandler(val.next_page, val.group_name.toLowerCase(),)} icon={<PlusCircle size={18} />} type='Outlined'>Show more</Button>
+                                                </FlexLayout> : null
+                                            }
+                                        </Card> : null
+                                    }
+                                </>
+                            ))}
             </FlexLayout>
 
         </>
