@@ -97,7 +97,7 @@ function HelpComp(_props: DIProps) {
                     }
                 >
                     {skeleton === true ?
-                        <FlexLayout spacing='loose' direction='vertical'>0
+                        <FlexLayout spacing='loose' direction='vertical'>
                             {
                                 [1, 2, 3, 4, 5].map((val) => (
                                     <FlexChild key={val}>
