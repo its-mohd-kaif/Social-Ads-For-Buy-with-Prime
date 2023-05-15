@@ -96,20 +96,13 @@ function HelpComp(_props: DIProps) {
                     }
                 >
                     {skeleton === true ?
-                        <FlexLayout spacing='loose' direction='vertical'>
-                            {
-                                [1, 2, 3, 4, 5].map((val) => (
-                                    <FlexChild key={val}>
-                                        <Skeleton
-                                            height="45px"
-                                            line={1}
-                                            type="line"
-                                            width="50px"
-                                        />
-                                    </FlexChild>
-                                ))
-                            }
-                        </FlexLayout> :
+                        <Skeleton
+                            height="45px"
+                            line={5}
+                            type="line"
+                            width="50px"
+                        />
+                        :
                         faq.length === 0 ?
                             <FAQFallback /> :
                             faq.map((val: any, index: number) => (
