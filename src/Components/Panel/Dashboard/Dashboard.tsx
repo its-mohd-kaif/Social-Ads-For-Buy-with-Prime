@@ -5,6 +5,7 @@ import { Actions, CampaignPlacement, CampaignStatus, closeFilterHandler, Dashboa
 import { DI, DIProps } from "../../../Core"
 import { urlFetchCalls } from '../../../../src/Constant'
 import { environment } from '../../../../src/environments/environment'
+import DashboardFallback from './Fallback/DashboardFallback'
 interface paginationObj {
   totalProducts: number
   activePage: number
@@ -338,192 +339,197 @@ function Dashboard(_props: DIProps) {
   if (loader === false)
     return (
       <div>
-        <PageHeader action={<Button onClick={() => {
-          _props.history(`/panel/${_props.redux.user_id}/create`)
-        }} icon={<Plus />}>Create Campaign</Button>}
+        <PageHeader
+          action={data.length !== 0 ? <Button onClick={() => {
+            _props.history(`/panel/${_props.redux.user_id}/create`)
+          }}
+            icon={<Plus />}>Create Campaign</Button> : null}
           title="Welcome to Social Ads for Buy with Prime!"
           description="Create and manage all your Buy with Prime
         Facebook and Instagram campaigns here." />
-        <Card title={"Campaigns"} action={
-          <ToolTip
-            helpText="If you want to download reports for specific campaigns, make sure you apply the required filters, then click on download report. Else, for a general report of all the campaigns. First, ensure no filters are selected before you download the report."
-            popoverContainer="body"
-            position="top"
-            type="light" open={false}>
-            <Button onClick={downloadReport} icon={<Download />} type='Outlined' thickness="thin">
-              Download Report
-            </Button>
-          </ToolTip>}>
-          <hr></hr>
-          <br></br>
-          <FlexLayout direction='vertical' spacing='extraTight'>
-            <FlexLayout spacing='loose' halign='fill'>
-              <FlexChild desktopWidth='50'>
-                <AutoComplete
-                  clearButton
-                  clearFunction={function noRefCheck() { }}
-                  extraClass=""
-                  onChange={(e: string) => {
-                    setSearch(e)
-                    GET(`meta/campaign/campaignAutoComplete?shop_id=902&keyword=${e}`)
-                      .then(() => { })
-                  }}
-                  onClick={function noRefCheck() { }}
-                  onEnter={function noRefCheck() { }}
-                  options={[]}
-                  placeHolder="Search Your Items"
-                  popoverContainer="body"
-                  popoverPosition="right"
-                  setHiglighted
-                  thickness="thin"
-                  value={search}
-                />
-              </FlexChild>
-              <FlexChild>
-                <FlexLayout spacing='tight'>
-                  <AdvanceFilter
-                    button="More Filter"
-                    filters={[
-                      {
-                        children: <>
-                          <FlexLayout direction='vertical' spacing='tight'>
-                            {myfilter.map((val: any) => (
-                              <CheckBox
-                                key={val.id}
-                                labelVal={val.label}
-                                name={val.label}
-                                checked={val.check}
-                                onClick={() => {
-                                  myFilterHandler(val, val.id, myfilter, setMyFilter, setSelected, selected, removeFilterFromSelected)
-                                }}
-                              />
-                            ))}
-                          </FlexLayout>
-                        </>,
-                        name: 'Status'
-                      }
-                    ]}
-                    heading="Filters"
-                    icon={<Filter color="#2a2a2a" size={16} />}
-                    onClose={() => closeFilterHandler(selected, apply, myfilter, setSelected, setMyFilter)}
-                    disableApply={false}
-                    onApply={applyFilterHandler}
-                    disableReset={false}
-                    resetFilter={() => {
-                      myfilter.map((val: any) => (
-                        val.check = false
-                      ))
-                      setMyFilter([...myfilter])
-                      setSelected([])
-                      setApply([])
+        {data.length !== 0 ?
+          <Card title={"Campaigns"} action={
+            <ToolTip
+              helpText="If you want to download reports for specific campaigns, make sure you apply the required filters, then click on download report. Else, for a general report of all the campaigns. First, ensure no filters are selected before you download the report."
+              popoverContainer="body"
+              position="top"
+              type="light" open={false}>
+              <Button onClick={downloadReport} icon={<Download />} type='Outlined' thickness="thin">
+                Download Report
+              </Button>
+            </ToolTip>}>
+            <hr></hr>
+            <br></br>
+            <FlexLayout direction='vertical' spacing='extraTight'>
+              <FlexLayout spacing='loose' halign='fill'>
+                <FlexChild desktopWidth='50'>
+                  <AutoComplete
+                    clearButton
+                    clearFunction={function noRefCheck() { }}
+                    extraClass=""
+                    onChange={(e: string) => {
+                      setSearch(e)
+                      GET(`meta/campaign/campaignAutoComplete?shop_id=902&keyword=${e}`)
+                        .then(() => { })
                     }}
-                    type="Outlined"
-                  />
-                  <Popover
-                    activator={<Button icon={<Plus />} type='Outlined' onClick={() => setFlag(!flag)}>Manage Columns</Button>}
-                    onClose={() => setFlag(!flag)}
+                    onClick={function noRefCheck() { }}
+                    onEnter={function noRefCheck() { }}
+                    options={[]}
+                    placeHolder="Search Your Items"
                     popoverContainer="body"
-                    popoverWidth={250}
-                    open={flag}
-                  >
-                    <FlexLayout spacing='loose' direction='vertical'>
-                      <CheckBox
-                        id="two"
-                        checked={check1}
-                        labelVal="Impressions"
-                        name="Impressions"
-                        onClick={() => {
-                          setCheckbox({
-                            ...checkbox,
-                            check1: !check1
-                          })
-                          manageColumns(!check1, "Impressions")
+                    popoverPosition="right"
+                    setHiglighted
+                    thickness="thin"
+                    value={search}
+                  />
+                </FlexChild>
+                <FlexChild>
+                  <FlexLayout spacing='tight'>
+                    <AdvanceFilter
+                      button="More Filter"
+                      filters={[
+                        {
+                          children: <>
+                            <FlexLayout direction='vertical' spacing='tight'>
+                              {myfilter.map((val: any) => (
+                                <CheckBox
+                                  key={val.id}
+                                  labelVal={val.label}
+                                  name={val.label}
+                                  checked={val.check}
+                                  onClick={() => {
+                                    myFilterHandler(val, val.id, myfilter, setMyFilter, setSelected, selected, removeFilterFromSelected)
+                                  }}
+                                />
+                              ))}
+                            </FlexLayout>
+                          </>,
+                          name: 'Status'
                         }
-                        }
-                      />
-                      <CheckBox
-                        checked={check2}
-                        id="two"
-                        labelVal="Clicks"
-                        name="Clicks"
-                        onClick={() => {
-                          setCheckbox({
-                            ...checkbox,
-                            check2: !check2
-                          })
-                          manageColumns(!check2, "Clicks")
-                        }}
-                      />
-                      <CheckBox
-                        checked={check3}
-                        id="two"
-                        labelVal="Orders"
-                        name="Orders"
-                        onClick={() => {
-                          setCheckbox({
-                            ...checkbox,
-                            check3: !check3
-                          })
-                          manageColumns(!check3, "Orders")
-                        }}
-                      />
-                      <CheckBox
-                        checked={check4}
-                        id="two"
-                        labelVal="ROAS"
-                        name="ROAS"
-                        onClick={() => {
-                          setCheckbox({
-                            ...checkbox,
-                            check4: !check4
-                          })
-                          manageColumns(!check4, "ROAS")
-                        }}
-                      />
-                    </FlexLayout>
-                  </Popover>
-                </FlexLayout>
-              </FlexChild>
+                      ]}
+                      heading="Filters"
+                      icon={<Filter color="#2a2a2a" size={16} />}
+                      onClose={() => closeFilterHandler(selected, apply, myfilter, setSelected, setMyFilter)}
+                      disableApply={false}
+                      onApply={applyFilterHandler}
+                      disableReset={false}
+                      resetFilter={() => {
+                        myfilter.map((val: any) => (
+                          val.check = false
+                        ))
+                        setMyFilter([...myfilter])
+                        setSelected([])
+                        setApply([])
+                      }}
+                      type="Outlined"
+                    />
+                    <Popover
+                      activator={<Button icon={<Plus />} type='Outlined' onClick={() => setFlag(!flag)}>Manage Columns</Button>}
+                      onClose={() => setFlag(!flag)}
+                      popoverContainer="body"
+                      popoverWidth={250}
+                      open={flag}
+                    >
+                      <FlexLayout spacing='loose' direction='vertical'>
+                        <CheckBox
+                          id="two"
+                          checked={check1}
+                          labelVal="Impressions"
+                          name="Impressions"
+                          onClick={() => {
+                            setCheckbox({
+                              ...checkbox,
+                              check1: !check1
+                            })
+                            manageColumns(!check1, "Impressions")
+                          }
+                          }
+                        />
+                        <CheckBox
+                          checked={check2}
+                          id="two"
+                          labelVal="Clicks"
+                          name="Clicks"
+                          onClick={() => {
+                            setCheckbox({
+                              ...checkbox,
+                              check2: !check2
+                            })
+                            manageColumns(!check2, "Clicks")
+                          }}
+                        />
+                        <CheckBox
+                          checked={check3}
+                          id="two"
+                          labelVal="Orders"
+                          name="Orders"
+                          onClick={() => {
+                            setCheckbox({
+                              ...checkbox,
+                              check3: !check3
+                            })
+                            manageColumns(!check3, "Orders")
+                          }}
+                        />
+                        <CheckBox
+                          checked={check4}
+                          id="two"
+                          labelVal="ROAS"
+                          name="ROAS"
+                          onClick={() => {
+                            setCheckbox({
+                              ...checkbox,
+                              check4: !check4
+                            })
+                            manageColumns(!check4, "ROAS")
+                          }}
+                        />
+                      </FlexLayout>
+                    </Popover>
+                  </FlexLayout>
+                </FlexChild>
+              </FlexLayout>
             </FlexLayout>
-          </FlexLayout>
 
-          {apply.length !== 0 ?
-            <>
-              <FilterTagComp
-                myfilter={myfilter}
-                setSelected={setSelected}
-                setMyFilter={setMyFilter}
-                setApply={setApply}
-                setFilterPop={setFilterPop}
-                apply={apply}
-                selected={selected}
-                filterPop={filterPop}
-              /><br></br><br></br> </> : null}
-          {gridLoader === true ? <Loader type='Loader1' /> : <Grid
-            scrollX={1500}
-            columns={columns}
-            dataSource={data}
-          />}
-          <Pagination
-            countPerPage={countPerPage}
-            currentPage={activePage}
-            onCountChange={(e: any) => countChangeHandler(e)}
-            onEnter={(e: any) => onEnterChange(e)}
-            onNext={nextPageHandler}
-            onPrevious={prevPageHandler}
-            totalitem={allData.length}
-            optionPerPage={[
-              {
-                label: '5',
-                value: '5'
-              },
-              {
-                label: '10',
-                value: '10'
-              },
-            ]}
-          />
-        </Card>
+            {apply.length !== 0 ?
+              <>
+                <FilterTagComp
+                  myfilter={myfilter}
+                  setSelected={setSelected}
+                  setMyFilter={setMyFilter}
+                  setApply={setApply}
+                  setFilterPop={setFilterPop}
+                  apply={apply}
+                  selected={selected}
+                  filterPop={filterPop}
+                /><br></br><br></br> </> : null}
+            {gridLoader === true ? <Loader type='Loader1' /> : <Grid
+              scrollX={1500}
+              columns={columns}
+              dataSource={data}
+            />}
+            <Pagination
+              countPerPage={countPerPage}
+              currentPage={activePage}
+              onCountChange={(e: any) => countChangeHandler(e)}
+              onEnter={(e: any) => onEnterChange(e)}
+              onNext={nextPageHandler}
+              onPrevious={prevPageHandler}
+              totalitem={allData.length}
+              optionPerPage={[
+                {
+                  label: '5',
+                  value: '5'
+                },
+                {
+                  label: '10',
+                  value: '10'
+                },
+              ]}
+            />
+          </Card>
+          : <DashboardFallback />}
+
       </div >
     )
   else {

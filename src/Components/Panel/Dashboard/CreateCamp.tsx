@@ -24,6 +24,7 @@ import { DI, DIProps } from "../../../../src/Core"
 import moment from 'moment'
 import { CheckCircle, Search, } from 'react-feather';
 import { urlFetchCalls } from '../../../../src/Constant';
+import { useNavigate } from 'react-router-dom';
 /**
  * State Types Define
  */
@@ -96,9 +97,10 @@ function CreateCamp(_props: DIProps) {
         audience: [],
         products_preview: []
     })
+    let navigate = useNavigate()
     const [checkCircle, setCheckCircle] = useState<string>("#1c2433")
     const regexOnlyStr = /^[A-Z]+$/i;
-    const { di: { GET }, redux: { current, user_id } } = _props
+    const { di: { GET }, redux: { user_id } } = _props
     const { get: { initCampaignUrl, getAudience } } = urlFetchCalls
     const { name, startDate, endDate, dailyBudget, adText, minAge, maxAge, gender, insta, facebook, selectAudience } = state
     const { nameErr, dailyErr, adTextErr } = error
@@ -350,7 +352,7 @@ function CreateCamp(_props: DIProps) {
         <div>
             <PageHeader
                 description="Facebook Dynamic Ads automatically target the audience based on their interest, intent, and actions."
-                onClick={function noRefCheck() { }}
+                onClick={() => navigate(-1)}
                 reverseNavigation
                 sticky={false}
                 title="Setup Campaign "
