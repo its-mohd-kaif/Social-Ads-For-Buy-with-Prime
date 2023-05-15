@@ -53,7 +53,6 @@ function HelpComp(_props: DIProps) {
                                         </FlexLayout>
                                     </Card>
                                 </FlexChild>
-
                                 <FlexChild mobileWidth='100' tabWidth='100' desktopWidth='50'>
                                     <Card cardType='Bordered'>
                                         <FlexLayout spacing='mediumLoose' direction='vertical'>
