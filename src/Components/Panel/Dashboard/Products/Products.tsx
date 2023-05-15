@@ -6,6 +6,7 @@ import { DI, DIProps } from "../../../../Core"
 import ProductsStatus, { closeFilterHandler, FilterTagComp, myFilterHandler, ProductApiData, ProductsActions, ProductsTitle, removeFilterFromSelected } from '../DashUtility'
 
 import productFallBackImg from "../../../../Asests/Images/png/productFallBack.png"
+import ProductsFallback from '../Fallback/ProductsFallback'
 interface paginationObj {
     activePage: number
     countPerPage: number
@@ -179,121 +180,125 @@ function Products(_props: DIProps) {
     }
     if (loader === false)
         return (
+
             <div>
                 <PageHeader title="Products" description="Your Buy with Prime products and their status appear here."
                     action={<Button icon={<RefreshCw />}>Catalog Sync</Button>}
                 />
-                <Card>
-                    <FlexLayout direction='vertical' spacing='loose'>
-                        <FlexLayout spacing='loose' halign='fill'>
-                            <FlexChild desktopWidth='50'>
-                                <>
-                                    <AutoComplete
-                                        clearButton
-                                        clearFunction={function noRefCheck() { }}
-                                        extraClass=""
-                                        onChange={(e: any) => {
-                                            setSearch(e)
-                                            GET(`${getRefineProductsUrl}?filter[title][3]=${e}`)
-                                                .then((res) => console.log("API", res))
-                                        }}
-                                        onClick={function noRefCheck() { }}
-                                        onEnter={function noRefCheck() { }}
-                                        options={[]}
-                                        placeHolder="Search Products"
-                                        popoverContainer="body"
-                                        popoverPosition="right"
-                                        setHiglighted
-                                        thickness="thin"
-                                        value={search}
-                                    />
-                                </>
-                            </FlexChild>
-                            <FlexChild>
-                                <>
-                                    <AdvanceFilter
-                                        button="Filter"
-                                        disableApply={false}
-                                        filters={[
-                                            {
-                                                children: <>
-                                                    <FlexLayout direction='vertical' spacing='tight'>
-                                                        {myfilter.map((val: any) => (
-                                                            <CheckBox
-                                                                key={val.id}
-                                                                labelVal={val.label}
-                                                                name={val.label}
-                                                                checked={val.check}
-                                                                onClick={() => {
-                                                                    myFilterHandler(val, val.id, myfilter, setMyFilter, setSelected, selected, removeFilterFromSelected)
-                                                                }}
-                                                            />
-                                                        ))}
-                                                    </FlexLayout>
-                                                </>,
-                                                name: 'Status'
-                                            }
-                                        ]}
-                                        heading="Filter Heading"
-                                        icon={<Filter color="#2a2a2a" size={16} />}
-                                        onApply={applyFilterHandler}
-                                        onClose={() => closeFilterHandler(selected, apply, myfilter, setSelected, setMyFilter)}
-                                        disableReset={false}
-                                        resetFilter={() => {
-                                            myfilter.map((val: any) => (
-                                                val.check = false
-                                            ))
-                                            setMyFilter([...myfilter])
-                                            setSelected([])
-                                            setApply([])
-                                        }}
-                                        type="Outlined"
-                                    />
-                                </>
-                            </FlexChild>
-                        </FlexLayout>
-                        {apply.length !== 0 ?
-                            <FilterTagComp
-                                myfilter={myfilter}
-                                setSelected={setSelected}
-                                setMyFilter={setMyFilter}
-                                setApply={setApply}
-                                setFilterPop={setFilterPop}
-                                apply={apply}
-                                selected={selected}
-                                filterPop={filterPop}
-                            /> : null}
-                        <br></br>
-                        {gridLoader === true ? <Loader type='Loader1' /> : <Grid
-                            columns={gridColumns}
-                            dataSource={data}
-                        />}
+                {data.length !== 0 ?
+                    <Card>
+                        <FlexLayout direction='vertical' spacing='loose'>
+                            <FlexLayout spacing='loose' halign='fill'>
+                                <FlexChild desktopWidth='50'>
+                                    <>
+                                        <AutoComplete
+                                            clearButton
+                                            clearFunction={function noRefCheck() { }}
+                                            extraClass=""
+                                            onChange={(e: any) => {
+                                                setSearch(e)
+                                                GET(`${getRefineProductsUrl}?filter[title][3]=${e}`)
+                                                    .then((res) => console.log("API", res))
+                                            }}
+                                            onClick={function noRefCheck() { }}
+                                            onEnter={function noRefCheck() { }}
+                                            options={[]}
+                                            placeHolder="Search Products"
+                                            popoverContainer="body"
+                                            popoverPosition="right"
+                                            setHiglighted
+                                            thickness="thin"
+                                            value={search}
+                                        />
+                                    </>
+                                </FlexChild>
+                                <FlexChild>
+                                    <>
+                                        <AdvanceFilter
+                                            button="Filter"
+                                            disableApply={false}
+                                            filters={[
+                                                {
+                                                    children: <>
+                                                        <FlexLayout direction='vertical' spacing='tight'>
+                                                            {myfilter.map((val: any) => (
+                                                                <CheckBox
+                                                                    key={val.id}
+                                                                    labelVal={val.label}
+                                                                    name={val.label}
+                                                                    checked={val.check}
+                                                                    onClick={() => {
+                                                                        myFilterHandler(val, val.id, myfilter, setMyFilter, setSelected, selected, removeFilterFromSelected)
+                                                                    }}
+                                                                />
+                                                            ))}
+                                                        </FlexLayout>
+                                                    </>,
+                                                    name: 'Status'
+                                                }
+                                            ]}
+                                            heading="Filter Heading"
+                                            icon={<Filter color="#2a2a2a" size={16} />}
+                                            onApply={applyFilterHandler}
+                                            onClose={() => closeFilterHandler(selected, apply, myfilter, setSelected, setMyFilter)}
+                                            disableReset={false}
+                                            resetFilter={() => {
+                                                myfilter.map((val: any) => (
+                                                    val.check = false
+                                                ))
+                                                setMyFilter([...myfilter])
+                                                setSelected([])
+                                                setApply([])
+                                            }}
+                                            type="Outlined"
+                                        />
+                                    </>
+                                </FlexChild>
+                            </FlexLayout>
+                            {apply.length !== 0 ?
+                                <FilterTagComp
+                                    myfilter={myfilter}
+                                    setSelected={setSelected}
+                                    setMyFilter={setMyFilter}
+                                    setApply={setApply}
+                                    setFilterPop={setFilterPop}
+                                    apply={apply}
+                                    selected={selected}
+                                    filterPop={filterPop}
+                                /> : null}
+                            <br></br>
+                            {gridLoader === true ? <Loader type='Loader1' /> : <Grid
+                                columns={gridColumns}
+                                dataSource={data}
+                            />}
 
-                        <Pagination
-                            countPerPage={countPerPage}
-                            currentPage={activePage}
-                            onCountChange={(e: any) => countChangeHandler(e)}
-                            onEnter={(e: any) => onEnterChange(e)}
-                            onNext={nextPageHandler}
-                            onPrevious={prevPageHandler}
-                            totalitem={allData.length}
-                            optionPerPage={[
-                                {
-                                    label: '5',
-                                    value: '5'
-                                },
-                                {
-                                    label: '10',
-                                    value: '10'
-                                },
-                                {
-                                    label: '15',
-                                    value: '15'
-                                },
-                            ]}
-                        />
-                    </FlexLayout>
-                </Card>
+                            <Pagination
+                                countPerPage={countPerPage}
+                                currentPage={activePage}
+                                onCountChange={(e: any) => countChangeHandler(e)}
+                                onEnter={(e: any) => onEnterChange(e)}
+                                onNext={nextPageHandler}
+                                onPrevious={prevPageHandler}
+                                totalitem={allData.length}
+                                optionPerPage={[
+                                    {
+                                        label: '5',
+                                        value: '5'
+                                    },
+                                    {
+                                        label: '10',
+                                        value: '10'
+                                    },
+                                    {
+                                        label: '15',
+                                        value: '15'
+                                    },
+                                ]}
+                            />
+                        </FlexLayout>
+                    </Card>
+                    : <ProductsFallback />}
+
             </div>
         )
     else {
