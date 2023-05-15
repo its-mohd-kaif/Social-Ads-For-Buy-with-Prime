@@ -5,6 +5,7 @@ import EmailSvg from '../../../../../src/Asests/Images/svg/EmailSvg'
 import VideoSvg from '../../../../../src/Asests/Images/svg/VideoSvg'
 import { DI, DIProps } from "../../../../../src/Core"
 import { urlFetchCalls } from '../../../../../src/Constant'
+import FAQFallback from "../../../../../src/Components/Panel/Dashboard/Fallback/FAQFallback"
 function HelpComp(_props: DIProps) {
     const { di: { POST } } = _props;
     const { get: { faqSearch } } = urlFetchCalls;
@@ -90,10 +91,13 @@ function HelpComp(_props: DIProps) {
                 </FlexLayout>
                 <Card
                     title={"Frequently Asked Question"}
-                    action={<Button onClick={() => { _props.history(`/panel/${_props.redux.user_id}/faq`) }} type='TextButton'>View all FAQ articles</Button>}
+                    action={faq.length !== 0 ?
+                        <Button onClick={() => { _props.history(`/panel/${_props.redux.user_id}/faq`) }} type='TextButton'>View all FAQ articles</Button>
+                        : null
+                    }
                 >
                     {skeleton === true ?
-                        <FlexLayout spacing='loose' direction='vertical'>0
+                        <FlexLayout spacing='loose' direction='vertical'>
                             {
                                 [1, 2, 3, 4, 5].map((val) => (
                                     <FlexChild key={val}>
@@ -106,23 +110,26 @@ function HelpComp(_props: DIProps) {
                                     </FlexChild>
                                 ))
                             }
-                        </FlexLayout> : faq.map((val: any, index: number) => (
-                            <>
-                                <Accordion
-                                    boxed
-                                    icon
-                                    iconAlign="left"
-                                    onClick={() => {
-                                        multiaccor[index] = !multiaccor[index]
-                                        setMultiacor([...multiaccor])
-                                    }}
-                                    title={val.title}
-                                    active={multiaccor[index]}
-                                >
-                                    <div dangerouslySetInnerHTML={{ __html: val.answer }}></div>
-                                </Accordion>
-                            </>
-                        ))}
+                        </FlexLayout> :
+                        faq.length === 0 ?
+                            <FAQFallback /> :
+                            faq.map((val: any, index: number) => (
+                                <>
+                                    <Accordion
+                                        boxed
+                                        icon
+                                        iconAlign="left"
+                                        onClick={() => {
+                                            multiaccor[index] = !multiaccor[index]
+                                            setMultiacor([...multiaccor])
+                                        }}
+                                        title={val.title}
+                                        active={multiaccor[index]}
+                                    >
+                                        <div dangerouslySetInnerHTML={{ __html: val.answer }}></div>
+                                    </Accordion>
+                                </>
+                            ))}
                 </Card>
             </FlexLayout>
         </>
