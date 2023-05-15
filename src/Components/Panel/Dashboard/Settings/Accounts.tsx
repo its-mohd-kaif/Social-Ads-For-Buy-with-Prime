@@ -1,7 +1,7 @@
 
 import { Alert, Badge, Button, Card, FlexChild, FlexLayout, FormElement, Image, Loader, Modal, PageHeader, Select, Skeleton, Tabs, TextLink, TextStyles } from '@cedcommerce/ounce-ui'
 import React, { useEffect, useState } from 'react'
-import { Edit } from 'react-feather'
+import { Edit, Plus } from 'react-feather'
 import fb from "../../../../Asests/Images/png/fb.png"
 import fbDisable from "../../../../Asests/Images/png/fb-disable.png"
 import ig from "../../../../Asests/Images/png/ig.png"
@@ -49,6 +49,10 @@ function Accounts(_props: PropsInfo) {
      * for update modal
      */
     const [updateModal, setUpdateModal] = useState<boolean>(false)
+    /**
+     * new account modal
+     */
+    const [newAccount, setNewAccount] = useState<boolean>(false)
     /**
      * for select pixel id
      */
@@ -269,6 +273,8 @@ function Accounts(_props: PropsInfo) {
                                 </>
                             ))}
                         </Card>
+                        <hr></hr>
+                        <Button onClick={() => setNewAccount(!newAccount)} icon={<Plus size={20} />} type='Plain'>Connect New Account</Button>
                     </FlexLayout>}
             </Card>
             <Modal
@@ -343,6 +349,32 @@ function Accounts(_props: PropsInfo) {
                     <TextStyles>
                         If any of the conditions do not meet. Your accounts’ catalogs get deleted on ads manager.
                         Existing campaigns will be deleted on the ads manager and get disconnected in the app.
+                    </TextStyles>
+                </FlexLayout>
+            </Modal>
+            <Modal
+                close={() => {
+                    setNewAccount(!newAccount)
+                }}
+                heading="New Account Connection"
+                modalSize="small"
+                primaryAction={{
+                    type: "Danger",
+                    content: 'Disconnect & Continue',
+                    loading: false,
+                    onClick: function noRefCheck() { }
+                }}
+                secondaryAction={{
+                    content: 'Cancel',
+                    loading: false,
+                    onClick: () => { setNewAccount(!newAccount) }
+                }} open={newAccount}>
+                <FlexLayout spacing='loose' direction='vertical'>
+                    <TextStyles>
+                        This action disconnects your current Facebook account from the Buy with Prime app. Hence, deleting your Buy with Prime catalog from Facebook.
+                    </TextStyles>
+                    <TextStyles>
+                        NOTE: Upon successful disconnection, all existing campaigns will reflect Disconnected status in app and will get deleted from the ads manager.
                     </TextStyles>
                 </FlexLayout>
             </Modal>
