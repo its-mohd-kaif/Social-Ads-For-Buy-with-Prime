@@ -6,7 +6,7 @@ import VideoSvg from '../../../../../src/Asests/Images/svg/VideoSvg'
 import { DI, DIProps } from "../../../../../src/Core"
 import { urlFetchCalls } from '../../../../../src/Constant'
 function HelpComp(_props: DIProps) {
-    const { di: { POST, GET } } = _props;
+    const { di: { POST } } = _props;
     const { get: { faqSearch } } = urlFetchCalls;
     const [faq, setFaq] = useState<any>([]);
     const [multiaccor, setMultiacor] = useState<any>([]);
@@ -90,10 +90,10 @@ function HelpComp(_props: DIProps) {
                 </FlexLayout>
                 <Card
                     title={"Frequently Asked Question"}
-                    action={<Button type='TextButton'>View all FAQ articles</Button>}
+                    action={<Button onClick={() => { _props.history(`/panel/${_props.redux.user_id}/faq`) }} type='TextButton'>View all FAQ articles</Button>}
                 >
                     {skeleton === true ?
-                        <FlexLayout spacing='loose' direction='vertical'>
+                        <FlexLayout spacing='loose' direction='vertical'>0
                             {
                                 [1, 2, 3, 4, 5].map((val) => (
                                     <FlexChild key={val}>

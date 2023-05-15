@@ -1,4 +1,4 @@
-import { Avatar, Button, FlexChild, FlexLayout, Notification, Popover, Skeleton, TextStyles, Topbar } from '@cedcommerce/ounce-ui'
+import { Button, FlexChild, FlexLayout, Notification, Popover, Skeleton, Topbar } from '@cedcommerce/ounce-ui'
 import React, { useState } from 'react'
 import { ArrowRight, Bell } from "react-feather";
 import { DI, DIProps } from "../../../../src/Core"
@@ -32,7 +32,6 @@ function TopbarComp(_props: DIProps) {
                 setNotifications(tempArr)
             })
     }
-    console.log(notifications)
     return (
         <>
             <Topbar
