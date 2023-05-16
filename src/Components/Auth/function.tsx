@@ -1,3 +1,4 @@
+
 /**
  * Returns the strenght of the password.
  * A password must contain ATLEAST one Uppercase , one lowercase , one specialchar , one Number.
@@ -29,3 +30,8 @@ export const PasswordStrenght: any = (user_password: string) => {
      */
     return strenght;
 };
+
+
+
+
+

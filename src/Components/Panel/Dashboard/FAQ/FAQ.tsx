@@ -1,4 +1,4 @@
-import { Accordion, AutoComplete, Button, Card, FlexChild, FlexLayout, PageHeader, Skeleton, Tag, TextStyles } from '@cedcommerce/ounce-ui'
+import { Accordion, AutoComplete, Button, Card, FlexLayout, PageHeader, Skeleton, Tag, TextStyles } from '@cedcommerce/ounce-ui'
 import React, { useEffect, useState } from 'react'
 import { DI, DIProps } from "../../../../../src/Core"
 import { urlFetchCalls } from '../../../../../src/Constant'
@@ -15,7 +15,6 @@ function FAQ(_props: DIProps) {
     const [options, setOptions] = useState<any>([]);
     const [searchSelect, setSearchSelect] = useState<any>([]);
     const [searchAccordian, setSearchAccordian] = useState<boolean>(false);
-
     /**
      * in this useEffect we make a post request 
      * and make data and store into state
@@ -202,10 +201,10 @@ function FAQ(_props: DIProps) {
                             data.map((val: any, index: number) => (
                                 <>
                                     {val.next_page !== null || val.data.length !== 0 ?
-                                        <Card title={val.group_name}>
+                                        <Card key={index} title={val.group_name}>
                                             {val.data.map((item: any, index: number) => (
-                                                <>
                                                     <Accordion
+                                                        key={index}
                                                         boxed
                                                         icon
                                                         iconAlign="left"
@@ -215,7 +214,6 @@ function FAQ(_props: DIProps) {
                                                     >
                                                         <div dangerouslySetInnerHTML={{ __html: item.answer }}></div>
                                                     </Accordion>
-                                                </>
                                             ))}
                                             <br></br>
                                             {

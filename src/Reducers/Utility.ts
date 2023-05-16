@@ -6,6 +6,7 @@ interface UtilityActionI {
         | 'LOGIN_STATUS'
         | 'logout'
         | 'errorFound'
+        | 'notify';
     state: any;
 }
 type errorType = 'fullPage' | 'modulePage' | '';
@@ -22,6 +23,7 @@ interface StateI {
         errorType?: errorType;
         message?: string | null;
     };
+    notify?: any;
 }
 
 interface ObjectI {
@@ -69,6 +71,11 @@ export const utility = (
             return {
                 ...state,
                 errorFound: action.state,
+            };
+        case 'notify':
+            return {
+                ...state,
+                notify: action.state,
             };
         default:
             return state;
