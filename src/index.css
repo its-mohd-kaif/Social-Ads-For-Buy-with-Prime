@@ -537,3 +537,15 @@ button.inte-fbBtn:hover {
     background-color: white !important;
     border: 1px solid white;
 }
+/* For Topbar Notification Red Dot */
+span.red-dot {
+    background: #D62C20;
+    height: 10px;
+    width: 10px;
+    display: inline-block;
+    border-radius: 50px;
+    position: absolute;
+    right: -4px;
+    z-index: 9;
+    top: 2px;
+}
