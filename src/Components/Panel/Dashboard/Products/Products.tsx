@@ -1,4 +1,4 @@
-import { AdvanceFilter, AutoComplete, Button, Card, CheckBox, FlexChild, FlexLayout, Grid, Image, PageHeader, Pagination, Loader } from '@cedcommerce/ounce-ui'
+import { AdvanceFilter, AutoComplete, Button, Card, CheckBox, FlexChild, FlexLayout, Grid, Image, PageHeader, Pagination, Loader, Alert, Modal } from '@cedcommerce/ounce-ui'
 import React, { useEffect, useState } from 'react'
 import { Filter, RefreshCw } from 'react-feather'
 import { urlFetchCalls } from '../../../../../src/Constant'
@@ -7,11 +7,16 @@ import ProductsStatus, { closeFilterHandler, FilterTagComp, myFilterHandler, Pro
 
 import productFallBackImg from "../../../../Asests/Images/png/productFallBack.png"
 import ProductsFallback from '../Fallback/ProductsFallback'
+import { webSocketInit } from '../../../../../src/Components/Auth/function'
 interface paginationObj {
     activePage: number
     countPerPage: number
     start: number
     end: number
+}
+interface bannerObj {
+    message: string;
+    destroy: boolean;
 }
 function Products(_props: DIProps) {
     const [allData, setAllData] = useState<any>([])
@@ -23,8 +28,15 @@ function Products(_props: DIProps) {
         start: 0,
         end: 5,
     })
-    const [search, setSearch] = useState<string>("")
-    const { get: { getRefineProductsUrl } } = urlFetchCalls;
+    const [search, setSearch] = useState<string>("");
+    const [banner, setBanner] = useState<bannerObj>({
+        message: "",
+        destroy: false
+    })
+    const [modal, setModal] = useState<boolean>(false);
+    const [btnLoader, setBtnLoader] = useState<boolean>(false);
+    const { message, destroy } = banner
+    const { get: { getRefineProductsUrl, queuedTaskUrl } } = urlFetchCalls;
     const { di: { GET } } = _props;
     const [myfilter, setMyFilter] = useState<any>([
         {
@@ -59,7 +71,15 @@ function Products(_props: DIProps) {
 
     const [gridLoader, setGridLoader] = useState<boolean>(false)
 
-    const { activePage, countPerPage, start, end } = pagination
+    const { activePage, countPerPage, start, end } = pagination;
+
+    useEffect(() => {
+        /**
+         * Call Websocket Function
+         */
+        webSocketInit(_props, setBanner, "banner")
+    }, [])
+
     useEffect(() => {
         setGridLoader(true)
         GET(`${getRefineProductsUrl}?is_only_parent_allow=false&filter[items.buyability][1]=BUYABLE&activePage=1&count=5`)
@@ -178,13 +198,46 @@ function Products(_props: DIProps) {
             end: end
         })
     }
+
+    const catalogHandler = () => {
+        setModal(!modal)
+        // webSocketInit(_props, setBanner, "banner")
+    }
+    console.log("STATE ", banner)
     if (loader === false)
         return (
-
             <div>
                 <PageHeader title="Products" description="Your Buy with Prime products and their status appear here."
-                    action={<Button icon={<RefreshCw />}>Catalog Sync</Button>}
+                    action={<Button onClick={catalogHandler} icon={<RefreshCw />}>Catalog Sync</Button>}
                 />
+                {(message === "product_upload" || message === "product_upload_complete")
+                    && destroy === false ?
+                    <FlexChild desktopWidth='50'>
+                        <>
+                            <Alert
+                                desciption={
+                                    message === "product_upload" ?
+                                        "Take a break. Your upload is in process." : "Upload Complete!"
+                                }
+                                destroy
+                                icon
+                                onClose={() => {
+                                    setBanner(
+                                        {
+                                            ...banner,
+                                            destroy: !destroy
+                                        }
+                                    )
+                                }}
+                                type={message === "product_upload" ? "info" : "success"}
+                            >
+                                {message === "product_upload" ? "Products Uploading!" : "Products successfully uploaded."}
+                            </Alert>
+                            <br></br>
+                        </>
+                    </FlexChild>
+                    : null
+                }
                 {data.length !== 0 ?
                     <Card>
                         <FlexLayout direction='vertical' spacing='loose'>
@@ -298,7 +351,42 @@ function Products(_props: DIProps) {
                         </FlexLayout>
                     </Card>
                     : <ProductsFallback />}
-
+                <Modal
+                    close={() => {
+                        setModal(!modal)
+                    }}
+                    heading="Sync your product catalog"
+                    modalSize="small"
+                    primaryAction={{
+                        content: 'Yes',
+                        loading: btnLoader,
+                        onClick: () => {
+                            setBtnLoader(true)
+                            GET(queuedTaskUrl)
+                                .then((res: any) => {
+                                    setBtnLoader(false)
+                                    if (res.success === true) {
+                                        if (res.data.rows[0].process_code === "product_upload") {
+                                            _props.error("Product syncing already in progress, kindly try after sometime.")
+                                        }
+                                        setBanner({
+                                            message: res.data.rows[0].process_code,
+                                            destroy: false
+                                        })
+                                    }
+                                    setModal(false)
+                                })
+                        }
+                    }}
+                    secondaryAction={{
+                        content: 'Cancel',
+                        loading: false,
+                        onClick: () => {
+                            setModal(!modal)
+                        }
+                    }} open={modal}>
+                    Are you sure you want to sync your product catalog?
+                </Modal>
             </div>
         )
     else {
