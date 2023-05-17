@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { ArrowRight, Bell } from "react-feather";
 import { DI, DIProps } from "../../../../src/Core"
 import moment from "moment"
+import { webSocketInit } from '../../../../src/Components/Auth/function';
 function TopbarComp(_props: DIProps) {
     const [flag, setFlag] = useState<boolean>(false);
     const [notifications, setNotifications] = useState<any>([])
@@ -12,51 +13,8 @@ function TopbarComp(_props: DIProps) {
         /**
          * Call WebSocketInit Function
          */
-        webSocketInit(_props)
+        webSocketInit(_props, setDot, "dot")
     }, [])
-
-    function webSocketInit(_props: any) {
-        const token = _props.di.globalState.getBearerToken();
-        const userId = _props.match.uId;
-        const clientId = 7;
-        if ("WebSocket" in window) {
-            var ws = new WebSocket(
-                'wss://a5zls8ce93.execute-api.us-east-2.amazonaws.com/beta'
-            );
-            ws.onopen = function () {
-                // just after opening connection its required to send identity to server
-                ws.send(
-                    '{ "action": "identity","client_id":' +
-                    clientId +
-                    ',"customer_id":"' +
-                    userId +
-                    '","token":"' +
-                    token +
-                    '"}'
-                );
-            };
-            ws.onmessage = function (evt) {
-                var received_msg = evt.data;
-                if (received_msg.toLowerCase().includes("notification")) {
-                    /**
-                     * value set into local storage as well as state
-                     */
-                    localStorage.setItem(`${userId}_showNotification`, "true")
-                    setDot(localStorage.getItem(`${_props.match.uId}_showNotification`))
-                } else {
-                    setDot(localStorage.getItem(`${_props.match.uId}_showNotification`))
-                }
-            };
-            ws.onclose = function () {
-                // websocket is closed.
-                console.log('Connection is closed...');
-                webSocketInit(_props);
-            };
-        } else {
-            console.log("Websocket Not Connected")
-        }
-    }
-
     /**
   * state for showing skeleton 
   */
@@ -85,7 +43,6 @@ function TopbarComp(_props: DIProps) {
                 setNotifications(tempArr)
             })
     }
-    console.log("DOT", dot)
     return (
         <>
             <Topbar
